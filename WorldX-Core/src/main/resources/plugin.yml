@@ -1,0 +1,111 @@
+name: WorldX
+version: '1.0.0-SNAPSHOT'
+main: fr.skynex.worldx.WorldX
+api-version: '1.21'
+author: Skynex
+description: Combined WorldEdit & WorldGuard plugin optimized for modern Paper servers.
+folia-supported: true
+
+commands:
+  worldx:
+    description: Main command for WorldX
+    aliases: [wx]
+  rg:
+    description: Region protection command
+    aliases: [region, worldguard]
+  '/wand':
+    description: Get the selection wand
+    permission: worldx.wand
+  '/set':
+    description: Set blocks in selection
+    permission: worldx.edit.set
+  '/replace':
+    description: Replace blocks in selection
+    permission: worldx.edit.replace
+  '/cut':
+    description: Cut blocks in selection
+    permission: worldx.edit.cut
+  '/copy':
+    description: Copy blocks in selection
+    permission: worldx.edit.copy
+  '/paste':
+    description: Paste blocks from clipboard
+    permission: worldx.edit.paste
+  '/undo':
+    description: Undo last action
+    permission: worldx.edit.undo
+  '/redo':
+    description: Redo last action
+    permission: worldx.edit.redo
+  schem:
+    description: Schematic loading and saving
+    aliases: [schematic, '/schem', '/schematic', '//schem', '//schematic']
+    permission: worldx.schematic
+  brush:
+    description: Terraforming brush tools
+    aliases: [br, '/brush', '/br']
+    permission: worldx.brush
+  '/sel':
+    description: Choose a selection shape
+    aliases: [sel, //sel]
+    permission: worldx.wand
+  '/filter':
+    description: Apply artistic filters to your selection
+    aliases: [filter, //filter]
+    permission: worldx.filter
+  '/expand':
+    description: Expand your selection in a direction
+    aliases: [expand, //expand]
+    permission: worldx.wand
+  '/contract':
+    description: Contract your selection in a direction
+    aliases: [contract, //contract]
+    permission: worldx.wand
+  '/size':
+    description: Show the volume of your selection
+    aliases: [size, //size]
+    permission: worldx.wand
+  '/rotate':
+    description: Rotate the clipboard
+    aliases: [rotate, //rotate]
+    permission: worldx.edit.paste
+  '/flip':
+    description: Mirror/flip the clipboard
+    aliases: [flip, //flip]
+    permission: worldx.edit.paste
+  '/gmask':
+    description: Set a global mask filter
+    aliases: [gmask, //gmask]
+    permission: worldx.edit.mask
+  '/sphere':
+    description: Generate a sphere of blocks
+    aliases: [sphere, //sphere]
+    permission: worldx.edit.sphere
+  '/hsphere':
+    description: Generate a hollow sphere of blocks
+    aliases: [hsphere, //hsphere]
+    permission: worldx.edit.sphere
+  '/line':
+    description: Draw a line between pos1 and pos2
+    aliases: [line, //line]
+    permission: worldx.edit.line
+
+permissions:
+  worldx.admin:
+    description: Grants all permissions for WorldX
+    default: op
+    children:
+      worldx.wand: true
+      worldx.edit.set: true
+      worldx.edit.replace: true
+      worldx.edit.cut: true
+      worldx.edit.copy: true
+      worldx.edit.paste: true
+      worldx.edit.undo: true
+      worldx.edit.redo: true
+      worldx.schematic: true
+      worldx.brush: true
+      worldx.filter: true
+      worldx.edit.mask: true
+      worldx.edit.sphere: true
+      worldx.edit.line: true

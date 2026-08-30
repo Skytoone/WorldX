@@ -1,0 +1,36 @@
+# WorldX - Presets Configuration
+# Ce fichier contient les groupes de flags (presets) applicables aux régions.
+# Vous pouvez appliquer un preset en jeu avec la commande : /rg apply-preset <region> <preset>
+
+spawn:
+  pvp: deny
+  build: deny
+  use: allow
+  mob-spawn: deny
+  god-mode: allow
+  hunger: deny
+  fall-damage: deny
+  greeting: "§aBienvenue au Spawn !"
+  farewell: "§cVous quittez le Spawn."
+
+pvp-arena:
+  pvp: allow
+  build: deny
+  use: deny
+  god-mode: deny
+  hunger: allow
+  fall-damage: allow
+  keep-inventory: allow
+  keep-xp: allow
+  greeting: "§cATTENTION : Vous entrez dans l'arène PvP !"
+  farewell: "§aVous êtes sorti sain et sauf de l'arène."
+
+mine:
+  pvp: deny
+  build: allow
+  use: allow
+  mob-spawn: deny
+  god-mode: deny
+  hunger: allow
+  fall-damage: allow
+  auto-replant: allow

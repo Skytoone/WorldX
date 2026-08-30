@@ -1,0 +1,64 @@
+# WorldX Configuration File
+
+# Database settings
+# Supported types: sqlite, mysql
+database:
+  type: "sqlite"
+  sqlite:
+    file-name: "regions.db"
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "worldx"
+    username: "root"
+    password: ""
+    pool:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+# Editing Engine settings (WorldEdit equivalent)
+edit:
+  # Wand item used for selections (left click: pos1, right click: pos2)
+  wand-item: "WOODEN_AXE"
+  
+  # Max blocks a player can edit in one command (-1 for unlimited)
+  max-blocks-per-edit: 500000
+  
+  # Configuration of the asynchronous block updater (prevents lag)
+  async:
+    # Max block changes executed per server tick
+    # Lower values are safer but slower. Higher values are faster but can cause server lag.
+    blocks-per-tick: 5000
+    
+    # Whether to notify the player when an asynchronous edit completes
+    notify-on-complete: true
+
+# Protection settings (WorldGuard equivalent)
+protection:
+  # Whether to cache region checks per chunk for maximum performance
+  enable-chunk-cache: true
+  
+  # Default region priorities
+  default-priority: 0
+
+# Integration settings
+integration:
+  # Discord webhook URL for region actions (creation, deletion, rollbacks)
+  discord-webhook-url: ""
+
+# Visualization settings
+visual:
+  # Mode of region and selection boundaries visualization
+  # Options: particle (particles block-by-block), display (uses Minecraft 1.20+ BlockDisplay entities)
+  mode: "display"
+
+# Redis Multi-Server Sync Settings
+redis:
+  enable: false
+  host: "localhost"
+  port: 6379
+  password: ""
+  channel: "worldx_sync"
+  server-id: "server-1"
