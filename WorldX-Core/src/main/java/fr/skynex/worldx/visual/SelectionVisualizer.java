@@ -355,6 +355,7 @@ public class SelectionVisualizer extends BukkitRunnable {
             BlockDisplay display = player.getWorld().spawn(loc, BlockDisplay.class, entity -> {
                 entity.setBlock(Bukkit.createBlockData(org.bukkit.Material.LIGHT_BLUE_STAINED_GLASS));
                 entity.setTransformation(trans);
+                entity.setGlowing(true);
                 entity.setPersistent(false);
                 entity.setVisibleByDefault(false);
             });
@@ -403,6 +404,7 @@ public class SelectionVisualizer extends BukkitRunnable {
             BlockDisplay display = player.getWorld().spawn(loc, BlockDisplay.class, entity -> {
                 entity.setBlock(Bukkit.createBlockData(org.bukkit.Material.LIME_STAINED_GLASS));
                 entity.setTransformation(trans);
+                entity.setGlowing(true);
                 entity.setPersistent(false);
                 entity.setVisibleByDefault(false);
             });

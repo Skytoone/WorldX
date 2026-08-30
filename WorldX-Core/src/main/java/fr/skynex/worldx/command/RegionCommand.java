@@ -78,6 +78,8 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                 return handleScriptCommand(sender, args);
             case "siege":
                 return handleSiegeCommand(sender, args);
+            case "backup":
+                return handleBackup(sender, args);
             case "rollback":
                 return new RollbackCommand(plugin).onCommand(sender, command, label, args);
             case "bindschem":
@@ -1876,6 +1878,30 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
         );
 
         return true;
+    }
+
+    private boolean handleBackup(CommandSender sender, String[] args) {
+        if (!sender.hasPermission("worldx.region.admin")) {
+            sender.sendMessage(ChatColor.RED + "Vous n'avez pas la permission de sauvegarder une région.");
+            return true;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage(ChatColor.RED + "Usage: /rg backup <id>");
+            return true;
+        }
+
+        String id = args[1];
+        Region region = plugin.getRegionManager().getRegion(id);
+        if (region == null) {
+            sender.sendMessage(ChatColor.RED + "Région \"" + id + "\" introuvable.");
+            return true;
+        }
+
+        String timestamp = new java.text.SimpleDateFormat("yyyyMMdd_HHmmss").format(new java.util.Date());
+        String backupSchemName = "backup_" + id + "_" + timestamp;
+
+        return handleSaveRegion(sender, new String[]{"save", id, backupSchemName});
     }
 
     private boolean handleSiegeCommand(CommandSender sender, String[] args) {

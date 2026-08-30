@@ -4,6 +4,7 @@ import fr.skynex.worldx.WorldX;
 import fr.skynex.worldx.region.Flag;
 import fr.skynex.worldx.region.Region;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -766,6 +767,53 @@ public class ProtectionListener implements Listener {
             if ("deny".equalsIgnoreCase(elytraVal)) {
                 player.setGliding(false);
                 player.sendMessage(MiniMessage.miniMessage().deserialize("<red>L'utilisation des Élytres est interdite dans cette région !"));
+            }
+        }
+
+        // Region Entry / Exit Triggers & Intrusion Alert
+        Region fromRegion = plugin.getRegionManager().getHighestPriorityRegionOfBlock(event.getFrom());
+        String fromId = fromRegion != null ? fromRegion.getId() : "";
+        String toId = region != null ? region.getId() : "";
+
+        if (!fromId.equals(toId)) {
+            // Player Left Region
+            if (fromRegion != null) {
+                String exitCmd = plugin.getRegionManager().getEffectiveFlagValue(fromRegion, "exit-command");
+                if (exitCmd != null && !exitCmd.trim().isEmpty()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), exitCmd.replace("{player}", player.getName()));
+                }
+                String exitTitle = plugin.getRegionManager().getEffectiveFlagValue(fromRegion, "exit-title");
+                if (exitTitle != null && !exitTitle.trim().isEmpty()) {
+                    player.showTitle(net.kyori.adventure.title.Title.title(
+                            MiniMessage.miniMessage().deserialize(exitTitle),
+                            net.kyori.adventure.text.Component.empty()
+                    ));
+                }
+            }
+
+            // Player Entered Region
+            if (region != null) {
+                String entryCmd = plugin.getRegionManager().getEffectiveFlagValue(region, "entry-command");
+                if (entryCmd != null && !entryCmd.trim().isEmpty()) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), entryCmd.replace("{player}", player.getName()));
+                }
+                String entryTitle = plugin.getRegionManager().getEffectiveFlagValue(region, "entry-title");
+                if (entryTitle != null && !entryTitle.trim().isEmpty()) {
+                    player.showTitle(net.kyori.adventure.title.Title.title(
+                            MiniMessage.miniMessage().deserialize(entryTitle),
+                            net.kyori.adventure.text.Component.empty()
+                    ));
+                }
+
+                // Intrusion Alert check
+                String intrusionVal = plugin.getRegionManager().getEffectiveFlagValue(region, "intrusion-alert");
+                if (intrusionVal != null && !"none".equalsIgnoreCase(intrusionVal)) {
+                    if (!region.isOwner(uuid) && !region.isMember(uuid)) {
+                        if (plugin.getRedisManager() != null && plugin.getRedisManager().isEnabled()) {
+                            plugin.getRedisManager().publishIntrusionAlert(region.getId(), player.getName());
+                        }
+                    }
+                }
             }
         }
     }

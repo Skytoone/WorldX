@@ -79,6 +79,9 @@ public class RedisManager {
                             // Sync in-memory region state
                             if (action.equals("DELETE")) {
                                 plugin.getRegionManager().removeRegionInMemory(regionId);
+                            } else if (action.equals("INTRUSION_ALERT")) {
+                                String playerName = parts.length >= 4 ? parts[3] : "Inconnu";
+                                plugin.getLogger().warning("[Redis Intrusion Alert] Player " + playerName + " intruded region " + regionId + " on server " + senderServerId);
                             } else {
                                 plugin.getRegionManager().reloadRegionFromDatabase(regionId);
                             }
@@ -104,6 +107,19 @@ public class RedisManager {
                 jedis.publish(channel, message);
             } catch (Exception e) {
                 plugin.getLogger().warning("Failed to publish sync message: " + e.getMessage());
+            }
+        });
+    }
+
+    public void publishIntrusionAlert(String regionId, String playerName) {
+        if (!enabled || jedisPool == null) return;
+
+        fr.skynex.worldx.scheduler.FoliaScheduler.runAsync(plugin, () -> {
+            try (Jedis jedis = jedisPool.getResource()) {
+                String message = serverId + ":INTRUSION_ALERT:" + regionId + ":" + playerName;
+                jedis.publish(channel, message);
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to publish intrusion alert: " + e.getMessage());
             }
         });
     }
