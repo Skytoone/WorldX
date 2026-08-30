@@ -1,4 +1,27 @@
-# WorldX Configuration File
+# ==============================================================================
+#                      WORLDX CENTRAL CONFIGURATION FILE
+# ==============================================================================
+
+# Global Plugin Settings
+plugin:
+  prefix: "<gradient:#9B51E0:#2F80ED>[WorldX]</gradient> "
+  debug-mode: false
+  language: "fr"
+
+# Centralized Feature Toggles (Enable/Disable any feature system)
+features:
+  editing: true          # WorldEdit commands (//set, //replace, //cut, //copy, //paste, etc.)
+  brushes: true          # Terraforming & sculpting brushes (/brush)
+  schematics: true       # Schematic save, load, history, cloud share & import (/schem)
+  animated-3d: true      # 3D BlockDisplay animated schematics (/schem animate)
+  protection: true       # Region protection & spatial index check
+  claim-system: false    # Player self-service claiming & upgrades (/rg claim, /rg upgrade)
+  dungeons: true         # Procedural dungeon generator (/worldx dungeon)
+  timemachine: true      # Regional time machine travel (/rg timemachine)
+  analytics: true        # Regional statistics & in-game particle heatmap (/worldx analytics)
+  reforestation: true    # Natural tree reforestation engine
+  gui-menus: true        # GUI menus (/rg gui, /schem gui, /worldx palette)
+  artistic-filters: true # Artistic selection filters (//filter)
 
 # Database settings
 # Supported types: sqlite, mysql
@@ -18,64 +41,20 @@ database:
       max-lifetime: 1800000
       connection-timeout: 30000
 
-# Centralized Feature Toggles (Enable/Disable any feature system)
-features:
-  editing: true          # WorldEdit commands (//set, //replace, //cut, //copy, //paste, etc.)
-  brushes: true          # Terraforming & sculpting brushes (/brush)
-  schematics: true       # Schematic save, load, history, cloud share & import (/schem)
-  animated-3d: true      # 3D BlockDisplay animated schematics (/schem animate)
-  protection: true       # Region protection & spatial index check
-  claim-system: false    # Player self-service claiming & upgrades (/rg claim, /rg upgrade)
-  dungeons: true         # Procedural dungeon generator (/worldx dungeon)
-  timemachine: true      # Regional time machine travel (/rg timemachine)
-  analytics: true        # Regional statistics & in-game particle heatmap (/worldx analytics)
-  reforestation: true    # Natural tree reforestation engine
-  gui-menus: true        # GUI menus (/rg gui, /schem gui, /worldx palette)
-  artistic-filters: true # Artistic selection filters (//filter)
-
 # Editing Engine settings (WorldEdit equivalent)
 edit:
-  # Wand item used for selections (left click: pos1, right click: pos2)
   wand-item: "WOODEN_AXE"
-  
-  # Max blocks a player can edit in one command (-1 for unlimited)
   max-blocks-per-edit: 500000
-  
-  # Configuration of the asynchronous block updater (prevents lag)
+  max-undo-history-per-player: 20
   async:
-    # Max block changes executed per server tick
-    # Lower values are safer but slower. Higher values are faster but can cause server lag.
     blocks-per-tick: 5000
-    
-    # Whether to notify the player when an asynchronous edit completes
     notify-on-complete: true
 
 # Protection settings (WorldGuard equivalent)
 protection:
-  # Whether to cache region checks per chunk for maximum performance
   enable-chunk-cache: true
-  
-  # Default region priorities
   default-priority: 0
-
-# Integration settings
-integration:
-  # Discord webhook URL for region actions (creation, deletion, rollbacks)
-  discord-webhook-url: ""
-
-# Visualization settings
-visual:
-  # Mode of region and selection boundaries visualization
-  # Options: particle (particles block-by-block), display (uses Minecraft 1.20+ BlockDisplay entities)
-  mode: "display"
-
-# Redis Multi-Server Sync Settings
-redis:
-  enable: false
-  host: "localhost"
-  port: 6379
-  password: ""
-  channel: "worldx_sync"
+  intrusion-alert-sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
 
 # Player Claim & Upgrade Settings
 claim:
@@ -86,4 +65,79 @@ claim:
   upgrade-expand-cost-per-block: 10.0
   upgrade-member-slot-cost: 500.0
 
+# Procedural Dungeon Engine Settings
+dungeons:
+  default-room-count: 3
+  default-room-size: 7
+  default-room-height: 5
+  wall-material: "STONE_BRICKS"
+  floor-material: "SMOOTH_STONE"
+
+# Time Machine Engine Settings
+timemachine:
+  particle-type: "PORTAL"
+  particle-count: 50
+
+# Reforestation Engine Settings
+reforestation:
+  regrowth-delay-seconds: 60
+  particle-type: "VILLAGER_HAPPY"
+  play-sound: true
+  sound-name: "BLOCK_GRASS_PLACE"
+
+# Visualization settings
+visual:
+  mode: "display" # particle or display
+  highlight-duration-seconds: 15
+
+# Integration settings
+integration:
+  vault-economy-enabled: true
+  discord-webhook-url: ""
+
+# Redis Multi-Server Sync Settings
+redis:
+  enable: false
+  host: "localhost"
+  port: 6379
+  password: ""
+  channel: "worldx_sync"
   server-id: "server-1"
+
+# ==============================================================================
+#                    MESSAGES DICTIONARY (MiniMessage Format)
+# ==============================================================================
+messages:
+  prefix: "<gradient:#9B51E0:#2F80ED>[WorldX]</gradient> "
+  no-permission: "<red>Vous n'avez pas la permission d'exécuter cette commande."
+  player-only: "<red>Seuls les joueurs peuvent exécuter cette commande."
+  feature-disabled: "<red>La fonctionnalité <gold>{feature}</gold> est actuellement désactivée."
+
+  # Claim Messages
+  claim-disabled: "<red>Le système de revendication de territoire (claim) est actuellement désactivé."
+  claim-success: "<green>Région <gold>{region}</gold> revendiquée avec succès ! Volume : <gray>{volume}</gray> blocs."
+  claim-limit-reached: "<red>Vous avez atteint la limite maximale de régions (<gold>{max}</gold>)."
+  claim-size-exceeded: "<red>La région dépasse la taille maximale autorisée (<gold>{max}</gold> blocs)."
+  claim-overlap: "<red>Impossible de claim : cette zone chevauche une région existante."
+  upgrade-success: "<green>Amélioration effectuée pour la région <gold>{region}</gold> ! (Coût : <yellow>{cost}$</yellow>)."
+  upgrade-insufficient-funds: "<red>Fonds insuffisants ! Coût de l'amélioration : <yellow>{cost}$</yellow>."
+
+  # Editing Messages
+  wand-given: "<green>Hache de sélection reçue. Clic-gauche : Pos1 | Clic-droit : Pos2."
+  pos1-set: "<light_purple>Position 1 définie sur <gray>({x}, {y}, {z})</gray>."
+  pos2-set: "<light_purple>Position 2 définie sur <gray>({x}, {y}, {z})</gray>."
+  edit-complete: "<green>Édition terminée ! <yellow>{count}</yellow> blocs modifiés en <gray>{time}ms</gray>."
+  undo-success: "<green>Action annulée avec succès (<yellow>{count}</yellow> blocs restaurés)."
+  redo-success: "<green>Action rétablie avec succès (<yellow>{count}</yellow> blocs appliqués)."
+
+  # Schematic Messages
+  schem-saved: "<green>Schématique <gold>{name}</gold> sauvegardée avec succès."
+  schem-loaded: "<green>Schématique <gold>{name}</gold> chargée dans votre presse-papier."
+  schem-animated: "<light_purple>Animation 3D démarrée à 60 FPS avec entités BlockDisplay !"
+
+  # Dungeon & TimeMachine Messages
+  dungeon-started: "<green>Génération du donjon procédural en cours (<yellow>{rooms}</yellow> salles)..."
+  timemachine-started: "<yellow>[Time Machine] Activation du voyage temporel pour la région <gold>{region}</gold>..."
+
+  # Reforestation Messages
+  reforest-scheduled: "<green>L'arbre abattu repoussera automatiquement dans <yellow>{delay}s</yellow>."
