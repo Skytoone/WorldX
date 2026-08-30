@@ -64,7 +64,7 @@ public class BrushCommand implements CommandExecutor, TabCompleter {
         try {
             type = BrushInfo.BrushType.valueOf(sub.toUpperCase());
         } catch (IllegalArgumentException e) {
-            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Type de brosse inconnu. Choisissez parmi: sphere, eraser, smooth, undo, tree, road, blend, spline, clipboard, erosion, biome, ruins, greeble."));
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Type de brosse inconnu. Choisissez parmi: sphere, eraser, smooth, height, noise, flatten, undo, tree, road, blend, spline, clipboard, erosion, biome, ruins, greeble, painter."));
             return true;
         }
 
@@ -189,7 +189,7 @@ public class BrushCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return Arrays.asList("sphere", "eraser", "smooth", "undo", "tree", "road", "blend", "spline", "clipboard", "erosion", "biome", "ruins", "greeble", "painter", "off").stream()
+            return Arrays.asList("sphere", "eraser", "smooth", "height", "noise", "flatten", "undo", "tree", "road", "blend", "spline", "clipboard", "erosion", "biome", "ruins", "greeble", "painter", "off").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase())).collect(Collectors.toList());
         }
 

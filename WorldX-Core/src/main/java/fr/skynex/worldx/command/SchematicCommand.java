@@ -49,6 +49,11 @@ public class SchematicCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (args.length >= 1 && (args[0].equalsIgnoreCase("gui") || args[0].equalsIgnoreCase("menu"))) {
+            player.openInventory(new fr.skynex.worldx.gui.SchematicGuiMenu(plugin, player).getInventory());
+            return true;
+        }
+
         if (args.length < 2) {
             sendHelp(player);
             return true;

@@ -71,6 +71,37 @@ public class RegionEffectsTask extends BukkitRunnable {
                 }
             }
 
+            if (highestRegion != null) {
+                // Time Lock
+                String timeLockStr = plugin.getRegionManager().getEffectiveFlagValue(highestRegion, "time-lock");
+                if (timeLockStr != null && !timeLockStr.trim().isEmpty()) {
+                    try {
+                        long ticks = Long.parseLong(timeLockStr.trim());
+                        player.setPlayerTime(ticks, false);
+                    } catch (NumberFormatException ignored) {}
+                }
+
+                // Weather Lock
+                String weatherLockStr = plugin.getRegionManager().getEffectiveFlagValue(highestRegion, "weather-lock");
+                if (weatherLockStr != null && !weatherLockStr.trim().isEmpty()) {
+                    String wType = weatherLockStr.trim().toLowerCase();
+                    if (wType.equals("clear")) {
+                        player.setPlayerWeather(org.bukkit.WeatherType.CLEAR);
+                    } else if (wType.equals("rain") || wType.equals("thunder")) {
+                        player.setPlayerWeather(org.bukkit.WeatherType.DOWNFALL);
+                    }
+                }
+
+                // Ambient Sound
+                String ambientSoundStr = plugin.getRegionManager().getEffectiveFlagValue(highestRegion, "ambient-sound");
+                if (ambientSoundStr != null && !ambientSoundStr.trim().isEmpty()) {
+                    try {
+                        org.bukkit.Sound sound = org.bukkit.Sound.valueOf(ambientSoundStr.trim().toUpperCase());
+                        player.playSound(player.getLocation(), sound, 0.5f, 1.0f);
+                    } catch (Exception ignored) {}
+                }
+            }
+
             List<Region> regions = plugin.getRegionManager().getRegionsAt(player.getLocation());
 
             for (Region region : regions) {

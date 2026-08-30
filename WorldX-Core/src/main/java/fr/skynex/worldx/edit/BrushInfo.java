@@ -18,7 +18,10 @@ public class BrushInfo {
         BIOME,
         RUINS,
         GREEBLE,
-        PAINTER
+        PAINTER,
+        HEIGHT,
+        NOISE,
+        FLATTEN
     }
 
     private final BrushType type;

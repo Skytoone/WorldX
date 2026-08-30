@@ -33,6 +33,7 @@
                 <configuration>
                     <release>21</release>
                     <encoding>UTF-8</encoding>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
                 </configuration>
             </plugin>
         </plugins>

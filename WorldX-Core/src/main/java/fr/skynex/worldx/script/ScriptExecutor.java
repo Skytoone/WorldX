@@ -137,6 +137,37 @@ public class ScriptExecutor {
                     }
                 } catch (Exception ignored) {}
             }
+        } else if (actionStr.startsWith("command:")) {
+            String cmd = actionStr.substring(8).replace("%player%", player.getName());
+            org.bukkit.Bukkit.dispatchCommand(org.bukkit.Bukkit.getConsoleSender(), cmd);
+        } else if (actionStr.startsWith("message:") || actionStr.startsWith("minimessage:")) {
+            int prefixLen = actionStr.startsWith("message:") ? 8 : 12;
+            String msg = actionStr.substring(prefixLen).replace("%player%", player.getName());
+            player.sendMessage(MiniMessage.miniMessage().deserialize(msg));
+        } else if (actionStr.startsWith("gamemode:")) {
+            String gmStr = actionStr.substring(9).toUpperCase();
+            try {
+                org.bukkit.GameMode gm = org.bukkit.GameMode.valueOf(gmStr);
+                player.setGameMode(gm);
+            } catch (Exception ignored) {}
+        } else if (actionStr.startsWith("potion:")) {
+            String[] parts = actionStr.substring(7).split(":");
+            if (parts.length >= 3) {
+                try {
+                    org.bukkit.potion.PotionEffectType type = org.bukkit.potion.PotionEffectType.getByName(parts[0].toUpperCase());
+                    int duration = Integer.parseInt(parts[1]);
+                    int amplifier = Integer.parseInt(parts[2]);
+                    if (type != null) {
+                        player.addPotionEffect(new org.bukkit.potion.PotionEffect(type, duration, amplifier));
+                    }
+                } catch (Exception ignored) {}
+            }
+        } else if (actionStr.equals("firework")) {
+            org.bukkit.entity.Firework fw = (org.bukkit.entity.Firework) player.getWorld().spawnEntity(player.getLocation(), EntityType.FIREWORK_ROCKET);
+            org.bukkit.inventory.meta.FireworkMeta fwm = fw.getFireworkMeta();
+            fwm.addEffect(org.bukkit.FireworkEffect.builder().withColor(org.bukkit.Color.LIME).with(org.bukkit.FireworkEffect.Type.BALL).build());
+            fwm.setPower(1);
+            fw.setFireworkMeta(fwm);
         } else if (actionStr.equals("push_back")) {
             player.setVelocity(player.getLocation().getDirection().multiply(-1.2).setY(0.4));
         }

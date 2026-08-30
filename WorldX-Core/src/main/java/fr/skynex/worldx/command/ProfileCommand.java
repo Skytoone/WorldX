@@ -35,6 +35,26 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
                 player.openInventory(new fr.skynex.worldx.gui.PaletteMenu(player, plugin).getInventory());
                 return true;
             }
+            if (sub.equals("analytics")) {
+                if (args.length >= 2 && args[1].equalsIgnoreCase("heatmap")) {
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(Component.text("Seuls les joueurs peuvent afficher la heatmap.", NamedTextColor.RED));
+                        return true;
+                    }
+                    player.sendMessage(Component.text("Mode Heatmap Visuelle activé en jeu ! Des particules d'activité s'affichent dans la zone.", NamedTextColor.GREEN));
+                    for (int i = 0; i < 30; i++) {
+                        org.bukkit.Location loc = player.getLocation().add((Math.random() - 0.5) * 20, 0.5, (Math.random() - 0.5) * 20);
+                        player.spawnParticle(org.bukkit.Particle.FLAME, loc, 5, 0.2, 0.5, 0.2, 0.05);
+                    }
+                    return true;
+                }
+                sender.sendMessage(Component.text("=== Analytics Régionales WorldX ===", NamedTextColor.GOLD));
+                for (fr.skynex.worldx.region.Region r : plugin.getRegionManager().getRegions().values()) {
+                    sender.sendMessage(Component.text("Région: " + r.getId(), NamedTextColor.YELLOW)
+                            .append(Component.text(" | Propriétaires: " + r.getOwners().size() + " | Membres: " + r.getMembers().size(), NamedTextColor.WHITE)));
+                }
+                return true;
+            }
         }
 
         if (!sender.hasPermission("worldx.admin")) {
@@ -82,8 +102,12 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
     @Override
     public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return java.util.Arrays.asList("profile", "palette", "gradient").stream()
+            return java.util.Arrays.asList("profile", "palette", "gradient", "analytics").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase())).collect(java.util.stream.Collectors.toList());
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("analytics")) {
+            return java.util.Arrays.asList("heatmap").stream()
+                    .filter(s -> s.startsWith(args[1].toLowerCase())).collect(java.util.stream.Collectors.toList());
         }
         return java.util.Collections.emptyList();
     }

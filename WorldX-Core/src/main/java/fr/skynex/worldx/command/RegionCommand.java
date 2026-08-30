@@ -86,6 +86,8 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                 return handleReset(sender, args);
             case "claim":
                 return handleClaim(sender, args);
+            case "upgrade":
+                return handleUpgrade(sender, args);
             case "debug":
             case "trace":
                 return handleDebug(sender, args);
@@ -960,6 +962,39 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
 
         long newVolume = calculateVolume(newRegion);
 
+        // Max region count check
+        int maxClaimCount = plugin.getConfig().getInt("claim.default-max-count", 3);
+        for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
+            String perm = attachment.getPermission();
+            if (perm.startsWith("worldx.claim.max-count.")) {
+                try {
+                    maxClaimCount = Math.max(maxClaimCount, Integer.parseInt(perm.replace("worldx.claim.max-count.", "")));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        long currentClaimCount = plugin.getRegionManager().getRegions().values().stream()
+                .filter(r -> r.getOwners().contains(player.getUniqueId()))
+                .count();
+        if (currentClaimCount >= maxClaimCount) {
+            player.sendMessage(ChatColor.RED + "Vous avez atteint votre limite maximale de claims (" + currentClaimCount + " / " + maxClaimCount + ").");
+            return true;
+        }
+
+        // Max blocks per single region check
+        int maxBlocksPerRegion = plugin.getConfig().getInt("claim.default-max-blocks", 50000);
+        for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
+            String perm = attachment.getPermission();
+            if (perm.startsWith("worldx.claim.max-blocks.")) {
+                try {
+                    maxBlocksPerRegion = Math.max(maxBlocksPerRegion, Integer.parseInt(perm.replace("worldx.claim.max-blocks.", "")));
+                } catch (NumberFormatException ignored) {}
+            }
+        }
+        if (newVolume > maxBlocksPerRegion) {
+            player.sendMessage(ChatColor.RED + "Ce claim dépasse la taille maximale autorisée par région (" + newVolume + " / " + maxBlocksPerRegion + " blocs).");
+            return true;
+        }
+
         // Budget check
         int budget = plugin.getConfig().getInt("claim.default-budget", 10000);
         for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
@@ -1015,6 +1050,60 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                 "Forme: " + shapeType.name() + ", Volume: " + newVolume + " blocs, Monde: " + newRegion.getWorldName()
         );
 
+        return true;
+    }
+
+    private boolean handleUpgrade(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage(ChatColor.RED + "Seuls les joueurs peuvent utiliser cette commande.");
+            return true;
+        }
+        if (args.length < 3) {
+            player.sendMessage(ChatColor.YELLOW + "Usage: /rg upgrade <id> <expand|members> [quantité]");
+            return true;
+        }
+        String id = args[1];
+        String upgradeType = args[2].toLowerCase();
+        Region region = plugin.getRegionManager().getRegion(id);
+        if (region == null) {
+            player.sendMessage(ChatColor.RED + "Région introuvable.");
+            return true;
+        }
+        if (!region.getOwners().contains(player.getUniqueId()) && !player.hasPermission("worldx.region.admin")) {
+            player.sendMessage(ChatColor.RED + "Vous devez être propriétaire de la région pour l'améliorer.");
+            return true;
+        }
+
+        if (upgradeType.equals("expand")) {
+            int amount = (args.length >= 4) ? Integer.parseInt(args[3]) : 1;
+            double cost = amount * plugin.getConfig().getDouble("claim.upgrade-expand-cost-per-block", 10.0);
+            if (fr.skynex.worldx.integration.EconomyIntegration.isEnabled()) {
+                if (!fr.skynex.worldx.integration.EconomyIntegration.withdraw(player, cost)) {
+                    player.sendMessage(ChatColor.RED + "Fonds insuffisants ! Coût de l'extension: " + cost + ".");
+                    return true;
+                }
+            }
+            Region oldState = RegionAction.cloneRegion(region);
+            region.setMinX(region.getMinX() - amount);
+            region.setMaxX(region.getMaxX() + amount);
+            region.setMinZ(region.getMinZ() - amount);
+            region.setMaxZ(region.getMaxZ() + amount);
+            plugin.getRegionManager().addRegion(region);
+            recordRegionUpdate(player, oldState, region);
+            player.sendMessage(ChatColor.GREEN + "Région étendue de " + amount + " bloc(s) ! (Coût: " + cost + ")");
+            return true;
+        } else if (upgradeType.equals("members")) {
+            double cost = plugin.getConfig().getDouble("claim.upgrade-member-slot-cost", 500.0);
+            if (fr.skynex.worldx.integration.EconomyIntegration.isEnabled()) {
+                if (!fr.skynex.worldx.integration.EconomyIntegration.withdraw(player, cost)) {
+                    player.sendMessage(ChatColor.RED + "Fonds insuffisants ! Coût d'un slot membre supplémentaire: " + cost + ".");
+                    return true;
+                }
+            }
+            player.sendMessage(ChatColor.GREEN + "Slot de membre supplémentaire acheté avec succès pour la région !");
+            return true;
+        }
+        player.sendMessage(ChatColor.RED + "Type d'amélioration inconnu. Utilisez 'expand' ou 'members'.");
         return true;
     }
 

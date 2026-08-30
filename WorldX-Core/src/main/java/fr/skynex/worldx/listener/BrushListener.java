@@ -450,6 +450,95 @@ public class BrushListener implements Listener {
                     }
                 }
             }
+        } else if (type == BrushInfo.BrushType.HEIGHT) {
+            int heightDelta = 1;
+            if (brush.getMetadata() != null) {
+                try { heightDelta = Integer.parseInt(brush.getMetadata()); } catch (NumberFormatException ignored) {}
+            }
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dz * dz <= radius * radius) {
+                        int bx = cx + dx;
+                        int bz = cz + dz;
+                        int highestY = world.getHighestBlockYAt(bx, bz);
+                        if (heightDelta > 0) {
+                            for (int y = highestY + 1; y <= highestY + heightDelta; y++) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    BlockData fill = (y == highestY + heightDelta) ? Material.GRASS_BLOCK.createBlockData() : Material.DIRT.createBlockData();
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, fill));
+                                }
+                            }
+                        } else if (heightDelta < 0) {
+                            for (int y = highestY; y > highestY + heightDelta; y--) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, Material.AIR.createBlockData()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (type == BrushInfo.BrushType.NOISE) {
+            java.util.Random rand = new java.util.Random();
+            int intensity = 2;
+            if (brush.getMetadata() != null) {
+                try { intensity = Math.max(1, Integer.parseInt(brush.getMetadata())); } catch (NumberFormatException ignored) {}
+            }
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dz * dz <= radius * radius) {
+                        int bx = cx + dx;
+                        int bz = cz + dz;
+                        int highestY = world.getHighestBlockYAt(bx, bz);
+                        int delta = rand.nextInt(intensity * 2 + 1) - intensity;
+                        if (delta > 0) {
+                            for (int y = highestY + 1; y <= highestY + delta; y++) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    BlockData fill = (y == highestY + delta) ? Material.GRASS_BLOCK.createBlockData() : Material.DIRT.createBlockData();
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, fill));
+                                }
+                            }
+                        } else if (delta < 0) {
+                            for (int y = highestY; y > highestY + delta; y--) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, Material.AIR.createBlockData()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (type == BrushInfo.BrushType.FLATTEN) {
+            int targetY = cy;
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx * dx + dz * dz <= radius * radius) {
+                        int bx = cx + dx;
+                        int bz = cz + dz;
+                        int currentY = world.getHighestBlockYAt(bx, bz);
+                        if (currentY < targetY) {
+                            for (int y = currentY + 1; y <= targetY; y++) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    BlockData fill = (y == targetY) ? Material.GRASS_BLOCK.createBlockData() : Material.DIRT.createBlockData();
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, fill));
+                                }
+                            }
+                        } else if (currentY > targetY) {
+                            for (int y = currentY; y > targetY; y--) {
+                                Location loc = new Location(world, bx, y, bz);
+                                if (plugin.getRegionManager().checkPermission(player, loc, Flag.BUILD)) {
+                                    changes.add(new BlockEditQueue.BlockChangeInfo(bx, y, bz, Material.AIR.createBlockData()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         } else if (type == BrushInfo.BrushType.PAINTER) {
             Session session = plugin.getSessionManager().getSession(player.getUniqueId());
             if (session != null && session.getActivePaintPalette() != null) {
