@@ -49,38 +49,109 @@ public class EditCommand implements CommandExecutor {
 
         switch (cmdName) {
             case "/wand":
+            case "wand":
                 return handleWand(player);
+            case "/pos1":
+            case "pos1":
+                return handlePos(player, 1, false);
+            case "/pos2":
+            case "pos2":
+                return handlePos(player, 2, false);
+            case "/hpos1":
+            case "hpos1":
+                return handlePos(player, 1, true);
+            case "/hpos2":
+            case "hpos2":
+                return handlePos(player, 2, true);
             case "/set":
+            case "set":
                 return handleSet(player, args);
             case "/replace":
+            case "replace":
                 return handleReplace(player, args);
+            case "/walls":
+            case "walls":
+                return handleWalls(player, args);
+            case "/cyl":
+            case "cyl":
+                return handleCyl(player, args, false);
+            case "/hcyl":
+            case "hcyl":
+                return handleCyl(player, args, true);
+            case "/pyramid":
+            case "pyramid":
+                return handlePyramid(player, args, false);
+            case "/hpyramid":
+            case "hpyramid":
+                return handlePyramid(player, args, true);
+            case "/center":
+            case "center":
+                return handleCenter(player, args);
+            case "/count":
+            case "count":
+                return handleCount(player, args);
+            case "/distr":
+            case "distr":
+                return handleDistr(player);
+            case "/stack":
+            case "stack":
+                return handleStack(player, args);
+            case "/move":
+            case "move":
+                return handleMove(player, args);
+            case "/fill":
+            case "fill":
+                return handleFill(player, args);
+            case "/drain":
+            case "drain":
+                return handleDrain(player, args);
+            case "/inset":
+            case "inset":
+                return handleInsetOutset(player, args, true);
+            case "/outset":
+            case "outset":
+                return handleInsetOutset(player, args, false);
             case "/cut":
+            case "cut":
                 return handleCut(player);
             case "/copy":
+            case "copy":
                 return handleCopy(player);
             case "/paste":
+            case "paste":
                 return handlePaste(player, args);
             case "/undo":
+            case "undo":
                 return handleUndo(player);
             case "/redo":
+            case "redo":
                 return handleRedo(player);
             case "/expand":
+            case "expand":
                 return handleExpand(player, args);
             case "/contract":
+            case "contract":
                 return handleContract(player, args);
             case "/size":
+            case "size":
                 return handleSize(player);
             case "/rotate":
+            case "rotate":
                 return handleRotate(player, args);
             case "/flip":
+            case "flip":
                 return handleFlip(player, args);
             case "/gmask":
+            case "gmask":
                 return handleGmask(player, args);
             case "/sphere":
+            case "sphere":
                 return handleSphere(player, args, false);
             case "/hsphere":
+            case "hsphere":
                 return handleSphere(player, args, true);
             case "/line":
+            case "line":
                 return handleLine(player, args);
             default:
                 return false;
@@ -1089,5 +1160,369 @@ public class EditCommand implements CommandExecutor {
         }
         points.add(new Location(p1.getWorld(), x2, y2, z2));
         return points;
+    }
+
+    private boolean handlePos(Player player, int posIndex, boolean targeted) {
+        Location targetLoc = targeted ? player.getTargetBlockExact(100) != null ? player.getTargetBlockExact(100).getLocation() : player.getLocation() : player.getLocation();
+        Session session = plugin.getSessionManager().getSession(player);
+        if (posIndex == 1) {
+            session.setPos1(targetLoc);
+            player.sendMessage(Component.text("Position 1 définie sur (" + targetLoc.getBlockX() + ", " + targetLoc.getBlockY() + ", " + targetLoc.getBlockZ() + ").", NamedTextColor.GREEN));
+        } else {
+            session.setPos2(targetLoc);
+            player.sendMessage(Component.text("Position 2 définie sur (" + targetLoc.getBlockX() + ", " + targetLoc.getBlockY() + ", " + targetLoc.getBlockZ() + ").", NamedTextColor.GREEN));
+        }
+        return true;
+    }
+
+    private boolean handleWalls(Player player, String[] args) {
+        if (args.length < 1) {
+            player.sendMessage(Component.text("Usage: //walls <bloc>", NamedTextColor.RED));
+            return true;
+        }
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) {
+            player.sendMessage(Component.text("Veuillez d'abord faire une sélection.", NamedTextColor.RED));
+            return true;
+        }
+        BlockData data = parseBlockData(args[0]);
+        if (data == null) {
+            player.sendMessage(Component.text("Bloc invalide: " + args[0], NamedTextColor.RED));
+            return true;
+        }
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX());
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX());
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY());
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY());
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ());
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ());
+
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (x == minX || x == maxX || z == minZ || z == maxZ) {
+                        changes.add(new BlockEditQueue.BlockChangeInfo(x, y, z, data));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Génération des murs (" + changes.size() + " blocs)...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), p1.getWorld().getName(), changes));
+        return true;
+    }
+
+    private boolean handleCyl(Player player, String[] args, boolean hollow) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: //cyl <bloc> <rayon> [hauteur]", NamedTextColor.RED));
+            return true;
+        }
+        BlockData data = parseBlockData(args[0]);
+        if (data == null) {
+            player.sendMessage(Component.text("Bloc invalide: " + args[0], NamedTextColor.RED));
+            return true;
+        }
+        int radius;
+        try {
+            radius = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            player.sendMessage(Component.text("Rayon invalide.", NamedTextColor.RED));
+            return true;
+        }
+        int height = 1;
+        if (args.length >= 3) {
+            try {
+                height = Integer.parseInt(args[2]);
+            } catch (NumberFormatException ignored) {}
+        }
+        Location center = player.getLocation().getBlock().getLocation();
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+        double rSq = radius * radius;
+        double innerRSq = (radius - 1) * (radius - 1);
+
+        for (int dy = 0; dy < height; dy++) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    double distSq = dx * dx + dz * dz;
+                    if (distSq <= rSq && (!hollow || distSq > innerRSq)) {
+                        changes.add(new BlockEditQueue.BlockChangeInfo(center.getBlockX() + dx, center.getBlockY() + dy, center.getBlockZ() + dz, data));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Génération du cylindre (" + changes.size() + " blocs)...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), center.getWorld().getName(), changes));
+        return true;
+    }
+
+    private boolean handlePyramid(Player player, String[] args, boolean hollow) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: //pyramid <bloc> <taille>", NamedTextColor.RED));
+            return true;
+        }
+        BlockData data = parseBlockData(args[0]);
+        if (data == null) {
+            player.sendMessage(Component.text("Bloc invalide.", NamedTextColor.RED));
+            return true;
+        }
+        int size = Integer.parseInt(args[1]);
+        Location center = player.getLocation().getBlock().getLocation();
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+
+        for (int y = 0; y < size; y++) {
+            int radius = size - y - 1;
+            for (int x = -radius; x <= radius; x++) {
+                for (int z = -radius; z <= radius; z++) {
+                    if (!hollow || Math.abs(x) == radius || Math.abs(z) == radius) {
+                        changes.add(new BlockEditQueue.BlockChangeInfo(center.getBlockX() + x, center.getBlockY() + y, center.getBlockZ() + z, data));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Génération de la pyramide (" + changes.size() + " blocs)...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), center.getWorld().getName(), changes));
+        return true;
+    }
+
+    private boolean handleCenter(Player player, String[] args) {
+        if (args.length < 1) {
+            player.sendMessage(Component.text("Usage: //center <bloc>", NamedTextColor.RED));
+            return true;
+        }
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) {
+            player.sendMessage(Component.text("Sélection requise.", NamedTextColor.RED));
+            return true;
+        }
+        BlockData data = parseBlockData(args[0]);
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int cx = (p1.getBlockX() + p2.getBlockX()) / 2;
+        int cy = (p1.getBlockY() + p2.getBlockY()) / 2;
+        int cz = (p1.getBlockZ() + p2.getBlockZ()) / 2;
+
+        List<BlockEditQueue.BlockChangeInfo> changes = List.of(new BlockEditQueue.BlockChangeInfo(cx, cy, cz, data));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), p1.getWorld().getName(), changes));
+        player.sendMessage(Component.text("Centre de la sélection défini sur " + args[0] + ".", NamedTextColor.GREEN));
+        return true;
+    }
+
+    private boolean handleCount(Player player, String[] args) {
+        if (args.length < 1) {
+            player.sendMessage(Component.text("Usage: //count <bloc>", NamedTextColor.RED));
+            return true;
+        }
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) {
+            player.sendMessage(Component.text("Sélection requise.", NamedTextColor.RED));
+            return true;
+        }
+        BlockData target = parseBlockData(args[0]);
+        if (target == null) return true;
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX());
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX());
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY());
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY());
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ());
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ());
+
+        long count = 0;
+        org.bukkit.World w = p1.getWorld();
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (w.getBlockAt(x, y, z).getBlockData().equals(target)) {
+                        count++;
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Nombre de blocs de type " + args[0] + " : " + count, NamedTextColor.GREEN));
+        return true;
+    }
+
+    private boolean handleDistr(Player player) {
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) {
+            player.sendMessage(Component.text("Sélection requise.", NamedTextColor.RED));
+            return true;
+        }
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX());
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX());
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY());
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY());
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ());
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ());
+
+        java.util.Map<Material, Integer> counts = new java.util.HashMap<>();
+        int total = 0;
+        org.bukkit.World w = p1.getWorld();
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    Material m = w.getBlockAt(x, y, z).getType();
+                    counts.put(m, counts.getOrDefault(m, 0) + 1);
+                    total++;
+                }
+            }
+        }
+        player.sendMessage(Component.text("=== Répartition des Blocs (" + total + " au total) ===", NamedTextColor.GOLD));
+        for (java.util.Map.Entry<Material, Integer> entry : counts.entrySet()) {
+            double percent = (entry.getValue() * 100.0) / total;
+            player.sendMessage(Component.text(entry.getKey().name() + ": " + entry.getValue() + " (" + String.format("%.2f", percent) + "%)", NamedTextColor.YELLOW));
+        }
+        return true;
+    }
+
+    private boolean handleStack(Player player, String[] args) {
+        int count = args.length >= 1 ? Integer.parseInt(args[0]) : 1;
+        String dir = args.length >= 2 ? args[1].toLowerCase() : getFacingDirection(player);
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) return true;
+
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int dx = Math.abs(p1.getBlockX() - p2.getBlockX()) + 1;
+        int dy = Math.abs(p1.getBlockY() - p2.getBlockY()) + 1;
+        int dz = Math.abs(p1.getBlockZ() - p2.getBlockZ()) + 1;
+
+        int stepX = dir.equals("east") ? dx : dir.equals("west") ? -dx : 0;
+        int stepY = dir.equals("up") ? dy : dir.equals("down") ? -dy : 0;
+        int stepZ = dir.equals("south") ? dz : dir.equals("north") ? -dz : 0;
+
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+        org.bukkit.World w = p1.getWorld();
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX());
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX());
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY());
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY());
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ());
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ());
+
+        for (int i = 1; i <= count; i++) {
+            for (int x = minX; x <= maxX; x++) {
+                for (int y = minY; y <= maxY; y++) {
+                    for (int z = minZ; z <= maxZ; z++) {
+                        BlockData data = w.getBlockAt(x, y, z).getBlockData();
+                        changes.add(new BlockEditQueue.BlockChangeInfo(x + stepX * i, y + stepY * i, z + stepZ * i, data));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Empilement de " + count + " copie(s) vers le " + dir + "...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), w.getName(), changes));
+        return true;
+    }
+
+    private boolean handleMove(Player player, String[] args) {
+        int distance = args.length >= 1 ? Integer.parseInt(args[0]) : 1;
+        String dir = args.length >= 2 ? args[1].toLowerCase() : getFacingDirection(player);
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) return true;
+
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX());
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX());
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY());
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY());
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ());
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ());
+
+        int stepX = dir.equals("east") ? distance : dir.equals("west") ? -distance : 0;
+        int stepY = dir.equals("up") ? distance : dir.equals("down") ? -distance : 0;
+        int stepZ = dir.equals("south") ? distance : dir.equals("north") ? -distance : 0;
+
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+        org.bukkit.World w = p1.getWorld();
+        BlockData air = Bukkit.createBlockData(Material.AIR);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockData data = w.getBlockAt(x, y, z).getBlockData();
+                    changes.add(new BlockEditQueue.BlockChangeInfo(x, y, z, air));
+                    changes.add(new BlockEditQueue.BlockChangeInfo(x + stepX, y + stepY, z + stepZ, data));
+                }
+            }
+        }
+        player.sendMessage(Component.text("Déplacement de la sélection de " + distance + " blocs vers le " + dir + "...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), w.getName(), changes));
+        return true;
+    }
+
+    private boolean handleFill(Player player, String[] args) {
+        if (args.length < 2) {
+            player.sendMessage(Component.text("Usage: //fill <bloc> <rayon>", NamedTextColor.RED));
+            return true;
+        }
+        BlockData data = parseBlockData(args[0]);
+        int radius = Integer.parseInt(args[1]);
+        Location loc = player.getLocation().getBlock().getLocation();
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
+                    if (b.getType() == Material.AIR || b.getType() == Material.WATER || b.getType() == Material.LAVA) {
+                        changes.add(new BlockEditQueue.BlockChangeInfo(b.getX(), b.getY(), b.getZ(), data));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Remplissage de " + changes.size() + " blocs...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), loc.getWorld().getName(), changes));
+        return true;
+    }
+
+    private boolean handleDrain(Player player, String[] args) {
+        int radius = args.length >= 1 ? Integer.parseInt(args[0]) : 10;
+        Location loc = player.getLocation().getBlock().getLocation();
+        List<BlockEditQueue.BlockChangeInfo> changes = new ArrayList<>();
+        BlockData air = Bukkit.createBlockData(Material.AIR);
+
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    Block b = loc.getWorld().getBlockAt(loc.getBlockX() + x, loc.getBlockY() + y, loc.getBlockZ() + z);
+                    if (b.getType() == Material.WATER || b.getType() == Material.LAVA) {
+                        changes.add(new BlockEditQueue.BlockChangeInfo(b.getX(), b.getY(), b.getZ(), air));
+                    }
+                }
+            }
+        }
+        player.sendMessage(Component.text("Drainage de " + changes.size() + " blocs de liquides...", NamedTextColor.YELLOW));
+        plugin.getBlockEditQueue().queueTask(new BlockEditQueue.EditTask(player.getUniqueId(), loc.getWorld().getName(), changes));
+        return true;
+    }
+
+    private boolean handleInsetOutset(Player player, String[] args, boolean inset) {
+        int amount = args.length >= 1 ? Integer.parseInt(args[0]) : 1;
+        Session session = plugin.getSessionManager().getSession(player);
+        if (!session.hasCompleteSelection()) return true;
+
+        Location p1 = session.getPos1();
+        Location p2 = session.getPos2();
+        int delta = inset ? -amount : amount;
+
+        int minX = Math.min(p1.getBlockX(), p2.getBlockX()) - delta;
+        int maxX = Math.max(p1.getBlockX(), p2.getBlockX()) + delta;
+        int minY = Math.min(p1.getBlockY(), p2.getBlockY()) - delta;
+        int maxY = Math.max(p1.getBlockY(), p2.getBlockY()) + delta;
+        int minZ = Math.min(p1.getBlockZ(), p2.getBlockZ()) - delta;
+        int maxZ = Math.max(p1.getBlockZ(), p2.getBlockZ()) + delta;
+
+        org.bukkit.World w = p1.getWorld();
+        session.setPos1(new Location(w, minX, minY, minZ));
+        session.setPos2(new Location(w, maxX, maxY, maxZ));
+        player.sendMessage(Component.text("Sélection " + (inset ? "réduite" : "agrandie") + " de " + amount + " bloc(s) sur tous les axes.", NamedTextColor.GREEN));
+        return true;
     }
 }

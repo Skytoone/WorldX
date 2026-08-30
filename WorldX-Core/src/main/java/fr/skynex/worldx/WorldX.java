@@ -53,6 +53,60 @@ public class WorldX extends JavaPlugin {
             public String getVersion() {
                 return getDescription().getVersion();
             }
+
+            @Override
+            public fr.skynex.worldx.region.Region getRegion(String id) {
+                return getRegionManager().getRegion(id);
+            }
+
+            @Override
+            public java.util.Map<String, fr.skynex.worldx.region.Region> getRegions() {
+                return getRegionManager().getRegions();
+            }
+
+            @Override
+            public fr.skynex.worldx.region.Region getHighestPriorityRegion(org.bukkit.Location location) {
+                return getRegionManager().getHighestPriorityRegionOfBlock(location);
+            }
+
+            @Override
+            public boolean isPlayerInRegion(org.bukkit.entity.Player player, String regionId) {
+                fr.skynex.worldx.region.Region r = getRegionManager().getRegion(regionId);
+                return r != null && r.contains(player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ());
+            }
+
+            @Override
+            public String getEffectiveFlagValue(fr.skynex.worldx.region.Region region, String flagName) {
+                return getRegionManager().getEffectiveFlagValue(region, flagName);
+            }
+
+            @Override
+            public void setFlag(fr.skynex.worldx.region.Region region, String flagName, String value) {
+                if (region == null) return;
+                if (value == null || value.equalsIgnoreCase("none")) {
+                    region.getFlags().remove(flagName);
+                } else {
+                    region.getFlags().put(flagName, value);
+                }
+                getRegionManager().addRegion(region);
+            }
+
+            @Override
+            public boolean isUnderSiege(String regionId) {
+                return siegeManager != null && siegeManager.isUnderSiege(regionId);
+            }
+
+            @Override
+            public boolean isAuctionActive(String regionId) {
+                return claimAuctionManager != null && claimAuctionManager.getAuction(regionId) != null;
+            }
+
+            @Override
+            public int getPlayerClaimCount(java.util.UUID playerUUID) {
+                return (int) getRegionManager().getRegions().values().stream()
+                        .filter(r -> r.getOwners().contains(playerUUID))
+                        .count();
+            }
         });
         regionProfiler = new fr.skynex.worldx.region.RegionProfiler();
 

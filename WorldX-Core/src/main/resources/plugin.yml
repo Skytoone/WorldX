@@ -3,7 +3,7 @@ version: '1.0.0-SNAPSHOT'
 main: fr.skynex.worldx.WorldX
 api-version: '1.21'
 author: Skynex
-description: Combined WorldEdit & WorldGuard plugin optimized for modern Paper servers.
+description: Complete combined replacement for WorldEdit, WorldGuard, and FAWE optimized for Paper & Folia.
 folia-supported: true
 
 commands:
@@ -12,30 +12,110 @@ commands:
     aliases: [wx]
   rg:
     description: Region protection command
-    aliases: [region, worldguard]
+    aliases: [region, worldguard, wg]
   '/wand':
     description: Get the selection wand
+    aliases: [wand, //wand]
+    permission: worldx.wand
+  '/pos1':
+    description: Set pos1 to your current location
+    aliases: [pos1, //pos1]
+    permission: worldx.wand
+  '/pos2':
+    description: Set pos2 to your current location
+    aliases: [pos2, //pos2]
+    permission: worldx.wand
+  '/hpos1':
+    description: Set pos1 to targeted block
+    aliases: [hpos1, //hpos1]
+    permission: worldx.wand
+  '/hpos2':
+    description: Set pos2 to targeted block
+    aliases: [hpos2, //hpos2]
     permission: worldx.wand
   '/set':
     description: Set blocks in selection
+    aliases: [set, //set]
     permission: worldx.edit.set
   '/replace':
     description: Replace blocks in selection
+    aliases: [replace, //replace]
     permission: worldx.edit.replace
+  '/walls':
+    description: Build outer walls around selection
+    aliases: [walls, //walls]
+    permission: worldx.edit.set
+  '/cyl':
+    description: Generate cylinder
+    aliases: [cyl, //cyl]
+    permission: worldx.edit.sphere
+  '/hcyl':
+    description: Generate hollow cylinder
+    aliases: [hcyl, //hcyl]
+    permission: worldx.edit.sphere
+  '/pyramid':
+    description: Generate pyramid
+    aliases: [pyramid, //pyramid]
+    permission: worldx.edit.sphere
+  '/hpyramid':
+    description: Generate hollow pyramid
+    aliases: [hpyramid, //hpyramid]
+    permission: worldx.edit.sphere
+  '/center':
+    description: Set block at center of selection
+    aliases: [center, //center]
+    permission: worldx.edit.set
+  '/count':
+    description: Count specific blocks in selection
+    aliases: [count, //count]
+    permission: worldx.wand
+  '/distr':
+    description: Distribution breakdown of blocks in selection
+    aliases: [distr, //distr]
+    permission: worldx.wand
+  '/stack':
+    description: Repeat selection N times in direction
+    aliases: [stack, //stack]
+    permission: worldx.edit.set
+  '/move':
+    description: Move selection contents N blocks
+    aliases: [move, //move]
+    permission: worldx.edit.set
+  '/fill':
+    description: Fill hollow areas or holes
+    aliases: [fill, //fill]
+    permission: worldx.edit.set
+  '/drain':
+    description: Drain liquid blocks
+    aliases: [drain, //drain]
+    permission: worldx.edit.set
+  '/inset':
+    description: Contract selection uniformly
+    aliases: [inset, //inset]
+    permission: worldx.wand
+  '/outset':
+    description: Expand selection uniformly
+    aliases: [outset, //outset]
+    permission: worldx.wand
   '/cut':
     description: Cut blocks in selection
+    aliases: [cut, //cut]
     permission: worldx.edit.cut
   '/copy':
     description: Copy blocks in selection
+    aliases: [copy, //copy]
     permission: worldx.edit.copy
   '/paste':
     description: Paste blocks from clipboard
+    aliases: [paste, //paste]
     permission: worldx.edit.paste
   '/undo':
     description: Undo last action
+    aliases: [undo, //undo]
     permission: worldx.edit.undo
   '/redo':
     description: Redo last action
+    aliases: [redo, //redo]
     permission: worldx.edit.redo
   schem:
     description: Schematic loading and saving

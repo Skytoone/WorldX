@@ -265,4 +265,26 @@ public class PlayerListener implements Listener {
             plugin.getSelectionVisualizer().clearWorld(world);
         }
     }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerCommandPreprocess(org.bukkit.event.player.PlayerCommandPreprocessEvent event) {
+        String msg = event.getMessage().trim();
+        if (msg.startsWith("//")) {
+            String stripped = msg.substring(1); // Converts //set stone -> /set stone
+            String[] split = stripped.split(" ");
+            String cmdLabel = split[0];
+            String[] args = java.util.Arrays.copyOfRange(split, 1, split.length);
+
+            org.bukkit.command.PluginCommand targetCmd = plugin.getCommand(cmdLabel.startsWith("/") ? cmdLabel : "/" + cmdLabel);
+            if (targetCmd == null) {
+                targetCmd = plugin.getCommand("/set");
+            }
+            fr.skynex.worldx.command.EditCommand editCmd = new fr.skynex.worldx.command.EditCommand(plugin);
+            boolean result = editCmd.onCommand(event.getPlayer(), targetCmd, cmdLabel, args);
+
+            if (result) {
+                event.setCancelled(true);
+            }
+        }
+    }
 }
