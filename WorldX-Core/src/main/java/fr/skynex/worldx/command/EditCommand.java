@@ -40,6 +40,11 @@ public class EditCommand implements CommandExecutor {
             return true;
         }
 
+        if (!plugin.getConfig().getBoolean("features.editing", true)) {
+            player.sendMessage(Component.text("Le système d'édition de monde (editing) est actuellement désactivé sur ce serveur.", NamedTextColor.RED));
+            return true;
+        }
+
         String cmdName = command.getName().toLowerCase();
 
         switch (cmdName) {

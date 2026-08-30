@@ -89,6 +89,10 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
             case "upgrade":
                 return handleUpgrade(sender, args);
             case "timemachine":
+                if (!plugin.getConfig().getBoolean("features.timemachine", true)) {
+                    sender.sendMessage(ChatColor.RED + "Le système de voyage temporel (timemachine) est actuellement désactivé sur ce serveur.");
+                    return true;
+                }
                 if (args.length < 3) {
                     sender.sendMessage(ChatColor.RED + "Usage: /rg timemachine <id> <offset>");
                     return true;

@@ -39,6 +39,11 @@ public class SchematicCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!plugin.getConfig().getBoolean("features.schematics", true)) {
+            player.sendMessage(Component.text("Le système de schématiques (schematics) est actuellement désactivé sur ce serveur.", NamedTextColor.RED));
+            return true;
+        }
+
         if (!player.hasPermission("worldx.schematic")) {
             player.sendMessage(Component.text("Vous n'avez pas la permission.", NamedTextColor.RED));
             return true;
@@ -71,6 +76,10 @@ public class SchematicCommand implements CommandExecutor, TabCompleter {
         } else if (action.equals("import")) {
             handleImport(player, args[1]); // import uses raw code which has dashes
         } else if (action.equals("animate")) {
+            if (!plugin.getConfig().getBoolean("features.animated-3d", true)) {
+                player.sendMessage(Component.text("Les schématiques animées 3D sont actuellement désactivées sur ce serveur.", NamedTextColor.RED));
+                return true;
+            }
             Session session = plugin.getSessionManager().getSession(player);
             if (session.getClipboard() != null) {
                 fr.skynex.worldx.edit.AnimatedSchematicEngine.animateClipboard(plugin, player.getLocation(), session.getClipboard(), 1.0);

@@ -39,6 +39,11 @@ public class FilterCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!plugin.getConfig().getBoolean("features.artistic-filters", true)) {
+            player.sendMessage(Component.text("Le système de filtres artistiques (filters) est actuellement désactivé sur ce serveur.", NamedTextColor.RED));
+            return true;
+        }
+
         if (!player.hasPermission("worldx.filter")) {
             player.sendMessage(Component.text("Vous n'avez pas la permission d'utiliser les filtres.", NamedTextColor.RED));
             return true;

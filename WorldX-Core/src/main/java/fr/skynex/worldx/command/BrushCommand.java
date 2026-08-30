@@ -36,6 +36,11 @@ public class BrushCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!plugin.getConfig().getBoolean("features.brushes", true)) {
+            player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Le système de pinceaux (brushes) est actuellement désactivé sur ce serveur."));
+            return true;
+        }
+
         if (!player.hasPermission("worldx.brush")) {
             player.sendMessage(MiniMessage.miniMessage().deserialize("<red>Vous n'avez pas la permission d'utiliser les brosses."));
             return true;

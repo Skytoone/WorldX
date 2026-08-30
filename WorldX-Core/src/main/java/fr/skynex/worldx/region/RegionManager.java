@@ -151,6 +151,9 @@ public class RegionManager {
      * location.
      */
     public boolean checkPermission(Player player, Location loc, Flag flag) {
+        if (!plugin.getConfig().getBoolean("features.protection", true)) {
+            return true;
+        }
         long start = System.nanoTime();
         try {
             return checkPermissionInternal(player, loc, flag);

@@ -28,6 +28,10 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
         if (args.length >= 1) {
             String sub = args[0].toLowerCase();
             if (sub.equals("palette") || sub.equals("gradient")) {
+                if (!plugin.getConfig().getBoolean("features.gui-menus", true)) {
+                    sender.sendMessage(Component.text("Les interfaces GUI sont actuellement désactivées sur ce serveur.", NamedTextColor.RED));
+                    return true;
+                }
                 if (!(sender instanceof Player player)) {
                     sender.sendMessage(Component.text("Seuls les joueurs peuvent utiliser cette commande.", NamedTextColor.RED));
                     return true;
@@ -36,6 +40,10 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
                 return true;
             }
             if (sub.equals("analytics")) {
+                if (!plugin.getConfig().getBoolean("features.analytics", true)) {
+                    sender.sendMessage(Component.text("Le système d'analytics et heatmap est actuellement désactivé sur ce serveur.", NamedTextColor.RED));
+                    return true;
+                }
                 if (args.length >= 2 && args[1].equalsIgnoreCase("heatmap")) {
                     if (!(sender instanceof Player player)) {
                         sender.sendMessage(Component.text("Seuls les joueurs peuvent afficher la heatmap.", NamedTextColor.RED));
@@ -56,6 +64,10 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
                 return true;
             }
             if (sub.equals("dungeon")) {
+                if (!plugin.getConfig().getBoolean("features.dungeons", true)) {
+                    sender.sendMessage(Component.text("Le générateur de donjons procéduraux est actuellement désactivé sur ce serveur.", NamedTextColor.RED));
+                    return true;
+                }
                 if (!(sender instanceof Player player)) {
                     sender.sendMessage(Component.text("Seuls les joueurs peuvent générer un donjon.", NamedTextColor.RED));
                     return true;

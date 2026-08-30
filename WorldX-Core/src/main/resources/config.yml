@@ -18,6 +18,21 @@ database:
       max-lifetime: 1800000
       connection-timeout: 30000
 
+# Centralized Feature Toggles (Enable/Disable any feature system)
+features:
+  editing: true          # WorldEdit commands (//set, //replace, //cut, //copy, //paste, etc.)
+  brushes: true          # Terraforming & sculpting brushes (/brush)
+  schematics: true       # Schematic save, load, history, cloud share & import (/schem)
+  animated-3d: true      # 3D BlockDisplay animated schematics (/schem animate)
+  protection: true       # Region protection & spatial index check
+  claim-system: false    # Player self-service claiming & upgrades (/rg claim, /rg upgrade)
+  dungeons: true         # Procedural dungeon generator (/worldx dungeon)
+  timemachine: true      # Regional time machine travel (/rg timemachine)
+  analytics: true        # Regional statistics & in-game particle heatmap (/worldx analytics)
+  reforestation: true    # Natural tree reforestation engine
+  gui-menus: true        # GUI menus (/rg gui, /schem gui, /worldx palette)
+  artistic-filters: true # Artistic selection filters (//filter)
+
 # Editing Engine settings (WorldEdit equivalent)
 edit:
   # Wand item used for selections (left click: pos1, right click: pos2)

@@ -41,6 +41,9 @@ public class ReforestManager extends BukkitRunnable {
     }
 
     public synchronized void addBlock(Block block) {
+        if (!plugin.getConfig().getBoolean("features.reforestation", true))
+            return;
+
         // Double check permissions and flag
         Location loc = block.getLocation();
         fr.skynex.worldx.region.Region region = plugin.getRegionManager().getHighestPriorityRegionOfBlock(loc);
