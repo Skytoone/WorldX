@@ -7,30 +7,30 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SchematicGuiMenu implements Menu {
+public class SchematicGuiMenu implements InventoryHolder {
 
     private final WorldX plugin;
     private final Player player;
-    private Inventory inventory;
+    private final Inventory inventory;
 
-    public SchematicGuiMenu(WorldX plugin, Player player) {
+    public SchematicGuiMenu(Player player, WorldX plugin) {
         this.plugin = plugin;
         this.player = player;
+        this.inventory = Bukkit.createInventory(this, 54, Component.text("Galerie de Schématiques", NamedTextColor.DARK_PURPLE));
+        buildMenu();
     }
 
     @Override
-    public Inventory getInventory() {
-        if (inventory == null) {
-            inventory = Bukkit.createInventory(this, 54, Component.text("Galerie de Schématiques", NamedTextColor.DARK_PURPLE));
-            buildMenu();
-        }
+    public @NotNull Inventory getInventory() {
         return inventory;
     }
 
@@ -70,24 +70,5 @@ public class SchematicGuiMenu implements Menu {
             close.setItemMeta(closeMeta);
         }
         inventory.setItem(49, close);
-    }
-
-    @Override
-    public void handleClick(Player player, int slot, ItemStack clickedItem) {
-        if (slot == 49) {
-            player.closeInventory();
-            return;
-        }
-
-        if (clickedItem != null && clickedItem.hasItemMeta()) {
-            ItemMeta meta = clickedItem.getItemMeta();
-            if (meta != null && meta.hasDisplayName()) {
-                String schemName = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText()
-                        .serialize(meta.displayName());
-
-                player.closeInventory();
-                player.performCommand("schem load " + schemName);
-            }
-        }
     }
 }

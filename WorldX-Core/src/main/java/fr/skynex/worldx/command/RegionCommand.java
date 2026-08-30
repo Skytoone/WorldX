@@ -1077,25 +1077,22 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
         if (upgradeType.equals("expand")) {
             int amount = (args.length >= 4) ? Integer.parseInt(args[3]) : 1;
             double cost = amount * plugin.getConfig().getDouble("claim.upgrade-expand-cost-per-block", 10.0);
-            if (fr.skynex.worldx.integration.EconomyIntegration.isEnabled()) {
-                if (!fr.skynex.worldx.integration.EconomyIntegration.withdraw(player, cost)) {
+            if (fr.skynex.worldx.integration.EconomyIntegration.setupEconomy()) {
+                if (!fr.skynex.worldx.integration.EconomyIntegration.withdrawPlayer(player, cost)) {
                     player.sendMessage(ChatColor.RED + "Fonds insuffisants ! Coût de l'extension: " + cost + ".");
                     return true;
                 }
             }
             Region oldState = RegionAction.cloneRegion(region);
-            region.setMinX(region.getMinX() - amount);
-            region.setMaxX(region.getMaxX() + amount);
-            region.setMinZ(region.getMinZ() - amount);
-            region.setMaxZ(region.getMaxZ() + amount);
+            region.recalculateBoundaries(region.getMinX() - amount, region.getMinY(), region.getMinZ() - amount, region.getMaxX() + amount, region.getMaxY(), region.getMaxZ() + amount);
             plugin.getRegionManager().addRegion(region);
             recordRegionUpdate(player, oldState, region);
             player.sendMessage(ChatColor.GREEN + "Région étendue de " + amount + " bloc(s) ! (Coût: " + cost + ")");
             return true;
         } else if (upgradeType.equals("members")) {
             double cost = plugin.getConfig().getDouble("claim.upgrade-member-slot-cost", 500.0);
-            if (fr.skynex.worldx.integration.EconomyIntegration.isEnabled()) {
-                if (!fr.skynex.worldx.integration.EconomyIntegration.withdraw(player, cost)) {
+            if (fr.skynex.worldx.integration.EconomyIntegration.setupEconomy()) {
+                if (!fr.skynex.worldx.integration.EconomyIntegration.withdrawPlayer(player, cost)) {
                     player.sendMessage(ChatColor.RED + "Fonds insuffisants ! Coût d'un slot membre supplémentaire: " + cost + ".");
                     return true;
                 }
