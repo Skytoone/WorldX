@@ -64,6 +64,7 @@ redis:
 
 # Player Claim & Upgrade Settings
 claim:
+  enable: false
   default-budget: 10000
   default-max-count: 3
   default-max-blocks: 50000

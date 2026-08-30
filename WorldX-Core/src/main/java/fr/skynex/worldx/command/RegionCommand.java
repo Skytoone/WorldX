@@ -907,6 +907,11 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
+        if (!plugin.getConfig().getBoolean("claim.enable", false)) {
+            player.sendMessage(ChatColor.RED + "Le système de revendication de territoire (claim) est actuellement désactivé sur ce serveur.");
+            return true;
+        }
+
         if (!player.hasPermission("worldx.region.claim")) {
             player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission de claim des régions.");
             return true;
@@ -1066,6 +1071,11 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
     private boolean handleUpgrade(CommandSender sender, String[] args) {
         if (!(sender instanceof Player player)) {
             sender.sendMessage(ChatColor.RED + "Seuls les joueurs peuvent utiliser cette commande.");
+            return true;
+        }
+
+        if (!plugin.getConfig().getBoolean("claim.enable", false)) {
+            player.sendMessage(ChatColor.RED + "Le système d'amélioration de claim est actuellement désactivé sur ce serveur.");
             return true;
         }
         if (args.length < 3) {
