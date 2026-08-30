@@ -80,6 +80,8 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                 return handleSiegeCommand(sender, args);
             case "backup":
                 return handleBackup(sender, args);
+            case "auction":
+                return new AuctionCommand(plugin).onCommand(sender, command, label, args);
             case "rollback":
                 return new RollbackCommand(plugin).onCommand(sender, command, label, args);
             case "bindschem":

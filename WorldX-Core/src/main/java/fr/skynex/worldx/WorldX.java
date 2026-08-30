@@ -1,30 +1,24 @@
 package fr.skynex.worldx;
 
+import fr.skynex.worldx.auction.ClaimAuctionManager;
+import fr.skynex.worldx.command.*;
 import fr.skynex.worldx.database.DatabaseManager;
+import fr.skynex.worldx.edit.BlockEditQueue;
+import fr.skynex.worldx.gui.MenuListener;
+import fr.skynex.worldx.integration.MapIntegrationManager;
+import fr.skynex.worldx.integration.NetworkSyncManager;
+import fr.skynex.worldx.listener.*;
 import fr.skynex.worldx.region.RegionManager;
 import fr.skynex.worldx.session.SessionManager;
-import fr.skynex.worldx.edit.BlockEditQueue;
-import fr.skynex.worldx.listener.ProtectionListener;
-import fr.skynex.worldx.listener.PlayerListener;
-import fr.skynex.worldx.listener.AdvancedFlagsListener;
-import fr.skynex.worldx.gui.MenuListener;
-import fr.skynex.worldx.visual.SelectionVisualizer;
-import fr.skynex.worldx.task.RegionEffectsTask;
-import fr.skynex.worldx.integration.NetworkSyncManager;
-import fr.skynex.worldx.command.EditCommand;
-import fr.skynex.worldx.command.RegionCommand;
-import fr.skynex.worldx.command.SchematicCommand;
-import fr.skynex.worldx.command.BrushCommand;
-import fr.skynex.worldx.listener.BrushListener;
+import fr.skynex.worldx.siege.SiegeManager;
 import fr.skynex.worldx.task.BrushPreviewTask;
-import fr.skynex.worldx.command.ProfileCommand;
-import fr.skynex.worldx.command.SelCommand;
-import fr.skynex.worldx.command.FilterCommand;
+import fr.skynex.worldx.task.RegionEffectsTask;
+import fr.skynex.worldx.visual.SelectionVisualizer;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public final class WorldX extends JavaPlugin {
+public class WorldX extends JavaPlugin {
 
     private static WorldX instance;
     private DatabaseManager databaseManager;
@@ -46,6 +40,10 @@ public final class WorldX extends JavaPlugin {
     private org.bukkit.configuration.file.FileConfiguration messagesConfig;
     private java.io.File messagesFile;
     private fr.skynex.worldx.reforest.ReforestManager reforestManager;
+
+    private MapIntegrationManager mapIntegrationManager;
+    private SiegeManager siegeManager;
+    private ClaimAuctionManager claimAuctionManager;
 
     @Override
     public void onEnable() {
@@ -102,7 +100,15 @@ public final class WorldX extends JavaPlugin {
             redisManager = new fr.skynex.worldx.redis.RedisManager(this);
             redisManager.initialize();
 
-            // 7c. Region Expiry Task (Run every 6000 ticks = 5 minutes)
+            // 7c. Map Integration Manager
+            mapIntegrationManager = new MapIntegrationManager(this);
+            mapIntegrationManager.init();
+
+            // 7d. Siege Manager & Claim Auction Manager
+            siegeManager = new SiegeManager(this);
+            claimAuctionManager = new ClaimAuctionManager(this);
+
+            // 7e. Region Expiry Task (Run every 6000 ticks = 5 minutes)
             regionExpiryTask = new fr.skynex.worldx.task.RegionExpiryTask(this);
             fr.skynex.worldx.scheduler.FoliaScheduler.runTaskTimer(this, regionExpiryTask, 100L, 6000L);
 
@@ -118,7 +124,7 @@ public final class WorldX extends JavaPlugin {
             reforestManager = new fr.skynex.worldx.reforest.ReforestManager(this);
             reforestManager.load();
             fr.skynex.worldx.scheduler.FoliaScheduler.runTaskTimer(this, reforestManager, 5L, 5L);
- 
+
             // Register Listeners
             getServer().getPluginManager().registerEvents(new ProtectionListener(this), this);
             getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
@@ -322,6 +328,18 @@ public final class WorldX extends JavaPlugin {
         return redisManager;
     }
 
+    public MapIntegrationManager getMapIntegrationManager() {
+        return mapIntegrationManager;
+    }
+
+    public SiegeManager getSiegeManager() {
+        return siegeManager;
+    }
+
+    public ClaimAuctionManager getClaimAuctionManager() {
+        return claimAuctionManager;
+    }
+
     public void loadPresetsConfig() {
         presetsFile = new java.io.File(getDataFolder(), "presets.yml");
         if (!presetsFile.exists()) {
@@ -359,6 +377,9 @@ public final class WorldX extends JavaPlugin {
         if (redisManager != null) {
             redisManager.close();
             redisManager.initialize();
+        }
+        if (mapIntegrationManager != null) {
+            mapIntegrationManager.updateAllRegionsOnMaps();
         }
         getLogger().info("WorldX configuration, messages, and presets reloaded successfully!");
     }
