@@ -61,4 +61,13 @@ redis:
   port: 6379
   password: ""
   channel: "worldx_sync"
+
+# Player Claim & Upgrade Settings
+claim:
+  default-budget: 10000
+  default-max-count: 3
+  default-max-blocks: 50000
+  upgrade-expand-cost-per-block: 10.0
+  upgrade-member-slot-cost: 500.0
+
   server-id: "server-1"
