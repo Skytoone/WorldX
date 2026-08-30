@@ -21,10 +21,19 @@
 - **💾 Base de Données SQLite & MySQL avec HikariCP**:
   - Stockage des régions, des schématiques (avec versionnage d'historique), des dégradés/palettes et de l'historique d'annulation (`Undo/Redo`).
   - Système de rollback automatique (`/rollback` et expiration de région).
-- **🎨 Visualisation 3D et Poignées Interactives**:
-  - Visualisation des sélections et des régions en temps réel avec des entités `BlockDisplay` et `TextDisplay` interactives (poignées de redimensionnement 3D).
-- **📜 Flags Avancés, Chat Régional & Webhooks Discord**:
-  - Intégration MiniMessage, canaux de discussion régionaux (`regional-chat`), détection d'intrusions avec alertes sonores et webhooks Discord.
+- **🌀 Moteur de Schématiques Animées 3D (`/schem animate`)**:
+  - Animation 3D fluide à 60 FPS de structures complexes en mouvement via des entités `BlockDisplay`.
+- **🏰 Moteur de Donjons Procéduraux (`/worldx dungeon`)**:
+  - Génération automatique de donjons par assemblage de salles et couloirs avec protection et déclencheurs auto-générés.
+- **⏳ Région Time Machine (`/rg timemachine <offset>`)**:
+  - Reconstitution et restauration historique des régions avec matrice de particules temporelles.
+- **🚩 Flags Révolutionnaires Exclusifs**:
+  - `antigravity` : Effet d'apesanteur/lévitation lunaire sans effet de potion.
+  - `custom-boss-bar` : Barre de boss Adventure dynamique avec mise en forme MiniMessage.
+  - `no-elytra` / `flight-mode` : Interdiction d'Élytra ou autorisation du vol libre en survie.
+  - `keep-inventory` & `respawn-location` : Conservation de l'inventaire/XP à la mort et point de réapparition personnalisé.
+  - `entry-fee` & `tax-per-minute` : Prélèvement de frais d'entrée et taxe de séjour via l'économie.
+  - `seamless-portal` : Transfert fluide inter-serveurs (BungeeCord/Velocity) au franchissement de région.
 
 ---
 

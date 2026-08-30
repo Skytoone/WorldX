@@ -55,6 +55,16 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
                 }
                 return true;
             }
+            if (sub.equals("dungeon")) {
+                if (!(sender instanceof Player player)) {
+                    sender.sendMessage(Component.text("Seuls les joueurs peuvent générer un donjon.", NamedTextColor.RED));
+                    return true;
+                }
+                int roomCount = (args.length >= 2) ? Integer.parseInt(args[1]) : 3;
+                fr.skynex.worldx.edit.ProceduralDungeonEngine.generateDungeon(plugin, player.getLocation(), "dungeon_" + (System.currentTimeMillis() / 1000), roomCount);
+                player.sendMessage(Component.text("Génération du donjon procédural en cours (" + roomCount + " salles)...", NamedTextColor.GREEN));
+                return true;
+            }
         }
 
         if (!sender.hasPermission("worldx.admin")) {
@@ -102,7 +112,7 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
     @Override
     public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return java.util.Arrays.asList("profile", "palette", "gradient", "analytics").stream()
+            return java.util.Arrays.asList("profile", "palette", "gradient", "analytics", "dungeon").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase())).collect(java.util.stream.Collectors.toList());
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("analytics")) {

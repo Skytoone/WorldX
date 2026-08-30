@@ -88,6 +88,16 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
                 return handleClaim(sender, args);
             case "upgrade":
                 return handleUpgrade(sender, args);
+            case "timemachine":
+                if (args.length < 3) {
+                    sender.sendMessage(ChatColor.RED + "Usage: /rg timemachine <id> <offset>");
+                    return true;
+                }
+                Region regTime = plugin.getRegionManager().getRegion(args[1]);
+                if (regTime != null && sender instanceof Player player) {
+                    fr.skynex.worldx.edit.TimeMachineEngine.travelTime(plugin, player, regTime, args[2]);
+                }
+                return true;
             case "debug":
             case "trace":
                 return handleDebug(sender, args);

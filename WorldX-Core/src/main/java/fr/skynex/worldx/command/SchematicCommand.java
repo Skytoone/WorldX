@@ -70,6 +70,14 @@ public class SchematicCommand implements CommandExecutor, TabCompleter {
             handleShare(player, name);
         } else if (action.equals("import")) {
             handleImport(player, args[1]); // import uses raw code which has dashes
+        } else if (action.equals("animate")) {
+            Session session = plugin.getSessionManager().getSession(player);
+            if (session.getClipboard() != null) {
+                fr.skynex.worldx.edit.AnimatedSchematicEngine.animateClipboard(plugin, player.getLocation(), session.getClipboard(), 1.0);
+                player.sendMessage(Component.text("Animation 3D démarrée à 60 FPS avec entités BlockDisplay !", NamedTextColor.GREEN));
+            } else {
+                player.sendMessage(Component.text("Votre presse-papier est vide. Chargez ou copiez un schéma d'abord.", NamedTextColor.RED));
+            }
         } else if (action.equals("history")) {
             handleHistory(player, name);
         } else if (action.equals("rollback")) {

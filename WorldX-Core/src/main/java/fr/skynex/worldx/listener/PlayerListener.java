@@ -219,4 +219,39 @@ public class PlayerListener implements Listener {
         }
         return "";
     }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerDeath(org.bukkit.event.entity.PlayerDeathEvent event) {
+        Player player = event.getEntity();
+        Region region = plugin.getRegionManager().getHighestPriorityRegionOfBlock(player.getLocation());
+        if (region != null) {
+            String keepInv = plugin.getRegionManager().getEffectiveFlagValue(region, "keep-inventory");
+            if ("allow".equalsIgnoreCase(keepInv) || "true".equalsIgnoreCase(keepInv)) {
+                event.setKeepInventory(true);
+                event.setKeepLevel(true);
+                event.getDrops().clear();
+                event.setDroppedExp(0);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerRespawn(org.bukkit.event.player.PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        Region region = plugin.getRegionManager().getHighestPriorityRegionOfBlock(player.getLocation());
+        if (region != null) {
+            String respawnLocStr = plugin.getRegionManager().getEffectiveFlagValue(region, "respawn-location");
+            if (respawnLocStr != null && !respawnLocStr.trim().isEmpty()) {
+                String[] parts = respawnLocStr.split(",");
+                if (parts.length >= 3) {
+                    try {
+                        double x = Double.parseDouble(parts[0].trim());
+                        double y = Double.parseDouble(parts[1].trim());
+                        double z = Double.parseDouble(parts[2].trim());
+                        event.setRespawnLocation(new Location(player.getWorld(), x, y, z));
+                    } catch (Exception ignored) {}
+                }
+            }
+        }
+    }
 }

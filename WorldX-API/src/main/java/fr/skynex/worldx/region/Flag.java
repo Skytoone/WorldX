@@ -82,7 +82,14 @@ public enum Flag {
     SIEGE_MODE, // Enable/disable siege rules
     SIEGE_START_TIME, // Timestamp of siege start
     NATURAL_REFORESTATION,
-    DYNAMIC_WEATHER_DOME;
+    DYNAMIC_WEATHER_DOME,
+    ANTIGRAVITY,
+    CUSTOM_BOSS_BAR,
+    NO_ELYTRA,
+    FLIGHT_MODE,
+    ENTRY_FEE,
+    TAX_PER_MINUTE,
+    SEAMLESS_PORTAL;
 
     public enum State {
         ALLOW,
