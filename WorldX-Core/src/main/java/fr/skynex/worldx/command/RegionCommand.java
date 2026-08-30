@@ -982,15 +982,7 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
         long newVolume = calculateVolume(newRegion);
 
         // Max region count check
-        int maxClaimCount = plugin.getConfig().getInt("claim.default-max-count", 3);
-        for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
-            String perm = attachment.getPermission();
-            if (perm.startsWith("worldx.claim.max-count.")) {
-                try {
-                    maxClaimCount = Math.max(maxClaimCount, Integer.parseInt(perm.replace("worldx.claim.max-count.", "")));
-                } catch (NumberFormatException ignored) {}
-            }
-        }
+        int maxClaimCount = fr.skynex.worldx.util.PermissionQuotaManager.getMaxClaims(plugin, player);
         long currentClaimCount = plugin.getRegionManager().getRegions().values().stream()
                 .filter(r -> r.getOwners().contains(player.getUniqueId()))
                 .count();
@@ -1000,15 +992,7 @@ public class RegionCommand implements CommandExecutor, TabCompleter {
         }
 
         // Max blocks per single region check
-        int maxBlocksPerRegion = plugin.getConfig().getInt("claim.default-max-blocks", 50000);
-        for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
-            String perm = attachment.getPermission();
-            if (perm.startsWith("worldx.claim.max-blocks.")) {
-                try {
-                    maxBlocksPerRegion = Math.max(maxBlocksPerRegion, Integer.parseInt(perm.replace("worldx.claim.max-blocks.", "")));
-                } catch (NumberFormatException ignored) {}
-            }
-        }
+        int maxBlocksPerRegion = fr.skynex.worldx.util.PermissionQuotaManager.getMaxBlocksPerClaim(plugin, player);
         if (newVolume > maxBlocksPerRegion) {
             player.sendMessage(ChatColor.RED + "Ce claim dépasse la taille maximale autorisée par région (" + newVolume + " / " + maxBlocksPerRegion + " blocs).");
             return true;

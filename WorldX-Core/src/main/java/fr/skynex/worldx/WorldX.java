@@ -43,6 +43,8 @@ public final class WorldX extends JavaPlugin {
     private fr.skynex.worldx.redis.RedisManager redisManager;
     private org.bukkit.configuration.file.FileConfiguration presetsConfig;
     private java.io.File presetsFile;
+    private org.bukkit.configuration.file.FileConfiguration messagesConfig;
+    private java.io.File messagesFile;
     private fr.skynex.worldx.reforest.ReforestManager reforestManager;
 
     @Override
@@ -56,9 +58,10 @@ public final class WorldX extends JavaPlugin {
         });
         regionProfiler = new fr.skynex.worldx.region.RegionProfiler();
 
-        // Save default config
+        // Save default configs
         saveDefaultConfig();
         loadPresetsConfig();
+        loadMessagesConfig();
 
         // Create schematics directory if not exists
         java.io.File schematicsDir = new java.io.File(getDataFolder(), "schematics");
@@ -332,5 +335,31 @@ public final class WorldX extends JavaPlugin {
             loadPresetsConfig();
         }
         return presetsConfig;
+    }
+
+    public void loadMessagesConfig() {
+        messagesFile = new java.io.File(getDataFolder(), "messages.yml");
+        if (!messagesFile.exists()) {
+            saveResource("messages.yml", false);
+        }
+        messagesConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(messagesFile);
+    }
+
+    public org.bukkit.configuration.file.FileConfiguration getMessagesConfig() {
+        if (messagesConfig == null) {
+            loadMessagesConfig();
+        }
+        return messagesConfig;
+    }
+
+    public void reloadPlugin() {
+        reloadConfig();
+        loadPresetsConfig();
+        loadMessagesConfig();
+        if (redisManager != null) {
+            redisManager.close();
+            redisManager.initialize();
+        }
+        getLogger().info("WorldX configuration, messages, and presets reloaded successfully!");
     }
 }

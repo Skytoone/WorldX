@@ -4,6 +4,7 @@ import fr.skynex.worldx.WorldX;
 import fr.skynex.worldx.region.Region;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -51,11 +52,12 @@ public class RegionFlagsMenu extends Menu {
         else if (slot == 12 || slot == 21) targetFlag = "use";
         else if (slot == 13 || slot == 22) targetFlag = "mob-spawn";
         else if (slot == 14 || slot == 23) targetFlag = "entry";
+        else if (slot == 15 || slot == 24) targetFlag = "fall-damage";
+        else if (slot == 16 || slot == 25) targetFlag = "keep-inventory";
 
         if (targetFlag != null) {
             cycleFlag(targetFlag);
-            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 1.0f, 1.0f);
-            setMenuItems(); // Refresh items in the inventory
+            setMenuItems(); // Instant refresh
         }
     }
 
@@ -64,10 +66,15 @@ public class RegionFlagsMenu extends Menu {
         
         if (current == null) {
             region.getFlags().put(flagName, "allow");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.4f);
+            player.spawnParticle(Particle.HAPPY_VILLAGER, player.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.05);
         } else if (current.equalsIgnoreCase("allow")) {
             region.getFlags().put(flagName, "deny");
+            player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.8f, 0.8f);
+            player.spawnParticle(Particle.SMOKE, player.getLocation().add(0, 1, 0), 5, 0.2, 0.2, 0.2, 0.05);
         } else {
             region.getFlags().remove(flagName);
+            player.playSound(player.getLocation(), Sound.UI_BUTTON_CLICK, 0.8f, 1.0f);
         }
 
         plugin.getRegionManager().addRegion(region); // Save region
@@ -77,27 +84,35 @@ public class RegionFlagsMenu extends Menu {
     public void setMenuItems() {
         fillBackground();
 
-        // 1. Build Flag (Slot 10) & State Pane (Slot 19)
+        // 1. Build Flag (Slot 10 & 19)
         setupFlagItem(10, 19, Material.GRASS_BLOCK, "build", "Construction", 
                 "Contrôle la pose et la destruction de blocs.");
 
-        // 2. PvP Flag (Slot 11) & State Pane (Slot 20)
+        // 2. PvP Flag (Slot 11 & 20)
         setupFlagItem(11, 20, Material.IRON_SWORD, "pvp", "PvP", 
                 "Contrôle les combats entre joueurs.");
 
-        // 3. Use Flag (Slot 12) & State Pane (Slot 21)
+        // 3. Use Flag (Slot 12 & 21)
         setupFlagItem(12, 21, Material.CHEST, "use", "Interactions", 
                 "Contrôle l'accès aux coffres, portes, boutons, etc.");
 
-        // 4. Mob-spawn Flag (Slot 13) & State Pane (Slot 22)
+        // 4. Mob-spawn Flag (Slot 13 & 22)
         setupFlagItem(13, 22, Material.ZOMBIE_HEAD, "mob-spawn", "Spawn de monstres", 
                 "Contrôle l'apparition naturelle des monstres.");
 
-        // 5. Entry Flag (Slot 14) & State Pane (Slot 23)
+        // 5. Entry Flag (Slot 14 & 23)
         setupFlagItem(14, 23, Material.IRON_DOOR, "entry", "Accès à la zone", 
                 "Interdit ou autorise l'entrée des joueurs.");
 
-        // 6. Return arrow at slot 18
+        // 6. Fall-Damage Flag (Slot 15 & 24)
+        setupFlagItem(15, 24, Material.FEATHER, "fall-damage", "Dégâts de chute", 
+                "Contrôle si les joueurs subissent des dégâts de chute.");
+
+        // 7. Keep-Inventory Flag (Slot 16 & 25)
+        setupFlagItem(16, 25, Material.TOTEM_OF_UNDYING, "keep-inventory", "Conserver Inventaire", 
+                "Conserve l'inventaire des joueurs à la mort.");
+
+        // Return arrow at slot 18
         inventory.setItem(18, createItem(Material.ARROW, ChatColor.GRAY + "Retour"));
     }
 

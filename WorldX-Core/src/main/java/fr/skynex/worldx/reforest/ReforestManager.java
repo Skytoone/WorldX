@@ -55,7 +55,7 @@ public class ReforestManager extends BukkitRunnable {
             return;
 
         // Limit maximum queue size to prevent memory exhaustion
-        int maxQueueSize = plugin.getConfig().getInt("ecological.reforest-max-queue", 5000);
+        int maxQueueSize = plugin.getConfig().getInt("reforestation.max-queue", plugin.getConfig().getInt("ecological.reforest-max-queue", 5000));
         if (queue.size() >= maxQueueSize) {
             return;
         }
@@ -67,7 +67,7 @@ public class ReforestManager extends BukkitRunnable {
         }
 
         // Add to queue.
-        long delay = plugin.getConfig().getLong("ecological.reforest-delay-seconds", 10) * 1000L;
+        long delay = plugin.getConfig().getLong("reforestation.regrowth-delay-seconds", plugin.getConfig().getLong("ecological.reforest-delay-seconds", 10)) * 1000L;
         queue.add(new ReforestBlock(
                 loc.getWorld().getName(),
                 loc.getBlockX(),

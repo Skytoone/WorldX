@@ -27,6 +27,15 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
 
         if (args.length >= 1) {
             String sub = args[0].toLowerCase();
+            if (sub.equals("reload")) {
+                if (!sender.hasPermission("worldx.admin") && !sender.hasPermission("worldx.reload")) {
+                    sender.sendMessage(Component.text("Vous n'avez pas la permission de recharger WorldX.", NamedTextColor.RED));
+                    return true;
+                }
+                plugin.reloadPlugin();
+                fr.skynex.worldx.util.MessageManager.sendMessage(plugin, sender, "reload-success");
+                return true;
+            }
             if (sub.equals("palette") || sub.equals("gradient")) {
                 if (!plugin.getConfig().getBoolean("features.gui-menus", true)) {
                     sender.sendMessage(Component.text("Les interfaces GUI sont actuellement désactivées sur ce serveur.", NamedTextColor.RED));
@@ -124,7 +133,7 @@ public class ProfileCommand implements CommandExecutor, org.bukkit.command.TabCo
     @Override
     public java.util.List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return java.util.Arrays.asList("profile", "palette", "gradient", "analytics", "dungeon").stream()
+            return java.util.Arrays.asList("reload", "profile", "palette", "gradient", "analytics", "dungeon").stream()
                     .filter(s -> s.startsWith(args[0].toLowerCase())).collect(java.util.stream.Collectors.toList());
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("analytics")) {

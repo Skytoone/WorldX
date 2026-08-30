@@ -61,16 +61,7 @@ public class BlockEditQueue {
     public synchronized void queueTask(EditTask task) {
         Player player = Bukkit.getPlayer(task.playerUUID);
         if (player != null && !player.isOp() && !player.hasPermission("worldx.admin")) {
-            int maxBlocks = plugin.getConfig().getInt("edit.default-quota", 10000);
-            for (org.bukkit.permissions.PermissionAttachmentInfo attachment : player.getEffectivePermissions()) {
-                String perm = attachment.getPermission();
-                if (perm.startsWith("worldx.edit.quota.")) {
-                    try {
-                        maxBlocks = Math.max(maxBlocks, Integer.parseInt(perm.replace("worldx.edit.quota.", "")));
-                    } catch (NumberFormatException ignored) {
-                    }
-                }
-            }
+            int maxBlocks = fr.skynex.worldx.util.PermissionQuotaManager.getEditQuota(plugin, player);
 
             if (task.totalVolume > maxBlocks) {
                 player.sendMessage(Component.text("Action rejetée ! Cette modification contient " + task.totalVolume

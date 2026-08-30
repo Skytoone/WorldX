@@ -106,6 +106,45 @@ public class SelectionVisualizer extends BukkitRunnable {
             }
         }
         activeHandles.clear();
+
+        activeRegionShows.clear();
+        forceParticles.clear();
+    }
+
+    public synchronized void clearWorld(World world) {
+        if (world == null) return;
+        String worldName = world.getName();
+
+        lastSelectionBounds.entrySet().removeIf(e -> e.getValue().worldName().equals(worldName));
+        lastRegionBounds.entrySet().removeIf(e -> e.getValue().worldName().equals(worldName));
+
+        activeSelectionDisplays.values().forEach(list -> {
+            if (list != null) {
+                for (BlockDisplay bd : list) {
+                    if (bd != null && bd.isValid() && bd.getWorld().getName().equals(worldName)) {
+                        bd.remove();
+                    }
+                }
+            }
+        });
+        activeRegionDisplays.values().forEach(list -> {
+            if (list != null) {
+                for (BlockDisplay bd : list) {
+                    if (bd != null && bd.isValid() && bd.getWorld().getName().equals(worldName)) {
+                        bd.remove();
+                    }
+                }
+            }
+        });
+        activeHandles.values().forEach(list -> {
+            if (list != null) {
+                for (org.bukkit.entity.Entity e : list) {
+                    if (e != null && e.isValid() && e.getWorld().getName().equals(worldName)) {
+                        e.remove();
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -261,14 +300,20 @@ public class SelectionVisualizer extends BukkitRunnable {
         }
 
         // Cleanup offline players from active visual tracking maps
-        List<UUID> offlineHandles = new ArrayList<>();
-        for (UUID u : activeHandles.keySet()) {
+        java.util.Set<UUID> allTracked = new java.util.HashSet<>();
+        allTracked.addAll(activeHandles.keySet());
+        allTracked.addAll(activeSelectionDisplays.keySet());
+        allTracked.addAll(activeRegionDisplays.keySet());
+        allTracked.addAll(activeRegionShows.keySet());
+
+        List<UUID> offlineTracked = new ArrayList<>();
+        for (UUID u : allTracked) {
             Player p = Bukkit.getPlayer(u);
             if (p == null || !p.isOnline()) {
-                offlineHandles.add(u);
+                offlineTracked.add(u);
             }
         }
-        for (UUID u : offlineHandles) {
+        for (UUID u : offlineTracked) {
             hideRegion(u);
         }
     }

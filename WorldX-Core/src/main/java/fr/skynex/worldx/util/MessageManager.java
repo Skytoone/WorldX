@@ -12,16 +12,26 @@ public class MessageManager {
     private static final MiniMessage mm = MiniMessage.miniMessage();
 
     public static String getPrefix(WorldX plugin) {
-        return plugin.getConfig().getString("messages.prefix", "<gradient:purple:blue>[WorldX]</gradient> ");
+        String prefix = plugin.getMessagesConfig().getString("prefix");
+        if (prefix == null) {
+            prefix = plugin.getConfig().getString("messages.prefix", "<gradient:#9B51E0:#2F80ED>[WorldX]</gradient> ");
+        }
+        return prefix;
     }
 
     public static Component getMessage(WorldX plugin, String key) {
-        String raw = plugin.getConfig().getString("messages." + key, "<red>Message introuvable: " + key);
+        String raw = plugin.getMessagesConfig().getString(key);
+        if (raw == null) {
+            raw = plugin.getConfig().getString("messages." + key, "<red>Message introuvable: " + key);
+        }
         return mm.deserialize(getPrefix(plugin) + raw);
     }
 
     public static Component getMessage(WorldX plugin, String key, Map<String, String> placeholders) {
-        String raw = plugin.getConfig().getString("messages." + key, "<red>Message introuvable: " + key);
+        String raw = plugin.getMessagesConfig().getString(key);
+        if (raw == null) {
+            raw = plugin.getConfig().getString("messages." + key, "<red>Message introuvable: " + key);
+        }
         if (placeholders != null) {
             for (Map.Entry<String, String> entry : placeholders.entrySet()) {
                 raw = raw.replace("{" + entry.getKey() + "}", entry.getValue());

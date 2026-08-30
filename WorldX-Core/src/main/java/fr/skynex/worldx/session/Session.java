@@ -77,8 +77,20 @@ public class Session {
         this.clipboard = clipboard;
     }
 
+    private int getMaxHistoryLimit() {
+        fr.skynex.worldx.WorldX plugin = fr.skynex.worldx.WorldX.getInstance();
+        if (plugin != null) {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(playerUUID);
+            if (player != null && player.isOnline()) {
+                return fr.skynex.worldx.util.PermissionQuotaManager.getMaxHistorySize(plugin, player);
+            }
+        }
+        return MAX_HISTORY_SIZE;
+    }
+
     public synchronized void addUndoOperation(EditOperation op) {
-        if (undoHistory.size() >= MAX_HISTORY_SIZE) {
+        int limit = getMaxHistoryLimit();
+        if (undoHistory.size() >= limit) {
             undoHistory.pollLast(); // Remove oldest operation
         }
         undoHistory.push(op);
@@ -119,7 +131,8 @@ public class Session {
     }
 
     public synchronized void addRedoOperation(EditOperation op) {
-        if (redoHistory.size() >= MAX_HISTORY_SIZE) {
+        int limit = getMaxHistoryLimit();
+        if (redoHistory.size() >= limit) {
             redoHistory.pollLast();
         }
         redoHistory.push(op);
@@ -327,6 +340,20 @@ public class Session {
         redoHistory.clear();
         regionUndoHistory.clear();
         regionRedoHistory.clear();
+    }
+
+    public void clearWorld(org.bukkit.World world) {
+        if (world == null) return;
+        if (pos1 != null && pos1.getWorld() != null && world.equals(pos1.getWorld())) {
+            pos1 = null;
+        }
+        if (pos2 != null && pos2.getWorld() != null && world.equals(pos2.getWorld())) {
+            pos2 = null;
+        }
+        selectionPoints.removeIf(loc -> loc != null && loc.getWorld() != null && world.equals(loc.getWorld()));
+        if (pastePreviewLocation != null && pastePreviewLocation.getWorld() != null && world.equals(pastePreviewLocation.getWorld())) {
+            pastePreviewLocation = null;
+        }
     }
 
     private fr.skynex.worldx.edit.Palette activePaintPalette;

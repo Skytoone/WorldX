@@ -254,4 +254,15 @@ public class PlayerListener implements Listener {
             }
         }
     }
+
+    @EventHandler
+    public void onWorldUnload(org.bukkit.event.world.WorldUnloadEvent event) {
+        org.bukkit.World world = event.getWorld();
+        if (plugin.getSessionManager() != null) {
+            plugin.getSessionManager().clearWorldReferences(world);
+        }
+        if (plugin.getSelectionVisualizer() != null) {
+            plugin.getSelectionVisualizer().clearWorld(world);
+        }
+    }
 }

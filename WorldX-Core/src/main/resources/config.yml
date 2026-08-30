@@ -44,6 +44,8 @@ database:
 # Editing Engine settings (WorldEdit equivalent)
 edit:
   wand-item: "WOODEN_AXE"
+  brush-item: "BLAZE_ROD"
+  default-quota: 10000
   max-blocks-per-edit: 500000
   max-undo-history-per-player: 20
   async:
@@ -80,7 +82,8 @@ timemachine:
 
 # Reforestation Engine Settings
 reforestation:
-  regrowth-delay-seconds: 60
+  regrowth-delay-seconds: 10
+  max-queue: 5000
   particle-type: "VILLAGER_HAPPY"
   play-sound: true
   sound-name: "BLOCK_GRASS_PLACE"
@@ -104,40 +107,4 @@ redis:
   channel: "worldx_sync"
   server-id: "server-1"
 
-# ==============================================================================
-#                    MESSAGES DICTIONARY (MiniMessage Format)
-# ==============================================================================
-messages:
-  prefix: "<gradient:#9B51E0:#2F80ED>[WorldX]</gradient> "
-  no-permission: "<red>Vous n'avez pas la permission d'exécuter cette commande."
-  player-only: "<red>Seuls les joueurs peuvent exécuter cette commande."
-  feature-disabled: "<red>La fonctionnalité <gold>{feature}</gold> est actuellement désactivée."
 
-  # Claim Messages
-  claim-disabled: "<red>Le système de revendication de territoire (claim) est actuellement désactivé."
-  claim-success: "<green>Région <gold>{region}</gold> revendiquée avec succès ! Volume : <gray>{volume}</gray> blocs."
-  claim-limit-reached: "<red>Vous avez atteint la limite maximale de régions (<gold>{max}</gold>)."
-  claim-size-exceeded: "<red>La région dépasse la taille maximale autorisée (<gold>{max}</gold> blocs)."
-  claim-overlap: "<red>Impossible de claim : cette zone chevauche une région existante."
-  upgrade-success: "<green>Amélioration effectuée pour la région <gold>{region}</gold> ! (Coût : <yellow>{cost}$</yellow>)."
-  upgrade-insufficient-funds: "<red>Fonds insuffisants ! Coût de l'amélioration : <yellow>{cost}$</yellow>."
-
-  # Editing Messages
-  wand-given: "<green>Hache de sélection reçue. Clic-gauche : Pos1 | Clic-droit : Pos2."
-  pos1-set: "<light_purple>Position 1 définie sur <gray>({x}, {y}, {z})</gray>."
-  pos2-set: "<light_purple>Position 2 définie sur <gray>({x}, {y}, {z})</gray>."
-  edit-complete: "<green>Édition terminée ! <yellow>{count}</yellow> blocs modifiés en <gray>{time}ms</gray>."
-  undo-success: "<green>Action annulée avec succès (<yellow>{count}</yellow> blocs restaurés)."
-  redo-success: "<green>Action rétablie avec succès (<yellow>{count}</yellow> blocs appliqués)."
-
-  # Schematic Messages
-  schem-saved: "<green>Schématique <gold>{name}</gold> sauvegardée avec succès."
-  schem-loaded: "<green>Schématique <gold>{name}</gold> chargée dans votre presse-papier."
-  schem-animated: "<light_purple>Animation 3D démarrée à 60 FPS avec entités BlockDisplay !"
-
-  # Dungeon & TimeMachine Messages
-  dungeon-started: "<green>Génération du donjon procédural en cours (<yellow>{rooms}</yellow> salles)..."
-  timemachine-started: "<yellow>[Time Machine] Activation du voyage temporel pour la région <gold>{region}</gold>..."
-
-  # Reforestation Messages
-  reforest-scheduled: "<green>L'arbre abattu repoussera automatiquement dans <yellow>{delay}s</yellow>."

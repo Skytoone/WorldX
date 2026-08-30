@@ -44,4 +44,12 @@ public class SessionManager {
         }
         sessions.clear();
     }
+
+    public void clearWorldReferences(org.bukkit.World world) {
+        for (Session session : sessions.values()) {
+            if (session != null) {
+                session.clearWorld(world);
+            }
+        }
+    }
 }
