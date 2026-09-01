@@ -365,4 +365,28 @@ public class Session {
     public void setActivePaintPalette(fr.skynex.worldx.edit.Palette activePaintPalette) {
         this.activePaintPalette = activePaintPalette;
     }
+
+    // Position & Region cache for performance
+    private int lastBlockX = Integer.MIN_VALUE;
+    private int lastBlockY = Integer.MIN_VALUE;
+    private int lastBlockZ = Integer.MIN_VALUE;
+    private String lastRegionId;
+
+    public boolean hasMovedBlock(int x, int y, int z) {
+        return x != lastBlockX || y != lastBlockY || z != lastBlockZ;
+    }
+
+    public void updateLastBlock(int x, int y, int z) {
+        this.lastBlockX = x;
+        this.lastBlockY = y;
+        this.lastBlockZ = z;
+    }
+
+    public String getLastRegionId() {
+        return lastRegionId;
+    }
+
+    public void setLastRegionId(String lastRegionId) {
+        this.lastRegionId = lastRegionId;
+    }
 }

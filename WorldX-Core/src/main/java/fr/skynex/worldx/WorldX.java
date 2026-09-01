@@ -82,12 +82,15 @@ public class WorldX extends JavaPlugin {
 
             @Override
             public void setFlag(fr.skynex.worldx.region.Region region, String flagName, String value) {
-                if (region == null) return;
-                if (value == null || value.equalsIgnoreCase("none")) {
-                    region.getFlags().remove(flagName);
-                } else {
-                    region.getFlags().put(flagName, value);
-                }
+                if (region == null || flagName == null) return;
+                String oldVal = region.getFlagValue(flagName);
+                String newVal = (value == null || value.equalsIgnoreCase("none")) ? null : value;
+
+                fr.skynex.worldx.event.RegionFlagChangeEvent event = new fr.skynex.worldx.event.RegionFlagChangeEvent(region, flagName, oldVal, newVal);
+                org.bukkit.Bukkit.getPluginManager().callEvent(event);
+                if (event.isCancelled()) return;
+
+                region.setFlagValue(flagName, event.getNewValue());
                 getRegionManager().addRegion(region);
             }
 

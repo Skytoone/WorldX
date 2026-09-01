@@ -110,8 +110,8 @@ public class RegionExample {
         // Obtenir la région
         Region region = player.getWorld() != null ? ... : null;
         if (region != null) {
-            String pvpFlag = region.getFlagValue("pvp");
-            return "allow".equalsIgnoreCase(pvpFlag);
+            // Vérification directe avec l'Enum Flag
+            return region.isAllowed(Flag.BUILD);
         }
         return true;
     }

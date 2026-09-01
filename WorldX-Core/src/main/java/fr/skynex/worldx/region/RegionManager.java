@@ -48,6 +48,7 @@ public class RegionManager {
     }
 
     public synchronized void addRegion(Region region) {
+        boolean isNew = !regions.containsKey(region.getId().toLowerCase());
         regions.put(region.getId().toLowerCase(), region);
         spatialIndex.addRegion(region);
         databaseManager.saveRegion(region);
@@ -56,6 +57,9 @@ public class RegionManager {
         }
         if (plugin.getRedisManager() != null) {
             plugin.getRedisManager().publishSync("UPDATE", region.getId());
+        }
+        if (isNew) {
+            Bukkit.getPluginManager().callEvent(new fr.skynex.worldx.event.RegionCreateEvent(region));
         }
     }
 
@@ -70,6 +74,7 @@ public class RegionManager {
             if (plugin.getRedisManager() != null) {
                 plugin.getRedisManager().publishSync("DELETE", region.getId());
             }
+            Bukkit.getPluginManager().callEvent(new fr.skynex.worldx.event.RegionDeleteEvent(region));
         }
     }
 

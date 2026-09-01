@@ -366,14 +366,50 @@ public class Region {
     }
 
     public String getFlagValue(String key) {
-        return flags.get(key);
+        if (key == null) return null;
+        String val = flags.get(key);
+        if (val == null) {
+            val = flags.get(key.toLowerCase().replace('_', '-'));
+        }
+        return val;
+    }
+
+    public String getFlagValue(Flag flag) {
+        if (flag == null) return null;
+        return getFlagValue(flag.name());
     }
 
     public void setFlagValue(String key, String value) {
         if (value == null) {
             flags.remove(key);
+            flags.remove(key.toLowerCase().replace('_', '-'));
         } else {
             flags.put(key, value);
         }
+    }
+
+    public void setFlagValue(Flag flag, String value) {
+        if (flag == null) return;
+        setFlagValue(flag.name(), value);
+    }
+
+    public boolean isAllowed(Flag flag, boolean defaultValue) {
+        String val = getFlagValue(flag);
+        if (val == null) return defaultValue;
+        return "allow".equalsIgnoreCase(val) || "true".equalsIgnoreCase(val);
+    }
+
+    public boolean isAllowed(Flag flag) {
+        return isAllowed(flag, true);
+    }
+
+    public boolean isAllowed(String key, boolean defaultValue) {
+        String val = getFlagValue(key);
+        if (val == null) return defaultValue;
+        return "allow".equalsIgnoreCase(val) || "true".equalsIgnoreCase(val);
+    }
+
+    public boolean isAllowed(String key) {
+        return isAllowed(key, true);
     }
 }

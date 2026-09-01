@@ -1,5 +1,6 @@
 package fr.skynex.worldx.api;
 
+import fr.skynex.worldx.region.Flag;
 import fr.skynex.worldx.region.Region;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -52,12 +53,58 @@ public interface WorldXAPI {
     String getEffectiveFlagValue(Region region, String flagName);
 
     /**
+     * Obtenir la valeur effective d'un drapeau (flag) via l'Enum Flag.
+     * @param region La région ciblée.
+     * @param flag Drapeau ciblé.
+     * @return La valeur du flag ou null.
+     */
+    default String getEffectiveFlagValue(Region region, Flag flag) {
+        return flag != null ? getEffectiveFlagValue(region, flag.name()) : null;
+    }
+
+    /**
      * Définir ou modifier un drapeau (flag) sur une région.
      * @param region La région à modifier.
      * @param flagName Nom du flag.
      * @param value Valeur ("allow", "deny", ou personnalisée).
      */
     void setFlag(Region region, String flagName, String value);
+
+    /**
+     * Définir ou modifier un drapeau (flag) via l'Enum Flag.
+     * @param region La région à modifier.
+     * @param flag Drapeau ciblé.
+     * @param value Valeur ("allow", "deny", ou personnalisée).
+     */
+    default void setFlag(Region region, Flag flag, String value) {
+        if (flag != null) {
+            setFlag(region, flag.name(), value);
+        }
+    }
+
+    /**
+     * Vérifier si un flag est autorisé ("allow") sur une région.
+     * @param region La région ciblée.
+     * @param flag Drapeau ciblé.
+     * @param defaultValue Valeur par défaut si non spécifié.
+     * @return true si autorisé, false sinon.
+     */
+    default boolean isFlagAllowed(Region region, Flag flag, boolean defaultValue) {
+        if (region == null || flag == null) return defaultValue;
+        String val = getEffectiveFlagValue(region, flag);
+        if (val == null) return defaultValue;
+        return "allow".equalsIgnoreCase(val) || "true".equalsIgnoreCase(val);
+    }
+
+    /**
+     * Vérifier si un flag est autorisé ("allow") sur une région (valeur par défaut true).
+     * @param region La région ciblée.
+     * @param flag Drapeau ciblé.
+     * @return true si autorisé, false sinon.
+     */
+    default boolean isFlagAllowed(Region region, Flag flag) {
+        return isFlagAllowed(region, flag, true);
+    }
 
     /**
      * Vérifier si une région est actuellement en cours de siège / capture.

@@ -7,6 +7,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -103,6 +104,9 @@ public class AdvancedFlagsListener implements Listener {
 
         // 0. Process exited regions (Check EXIT protection first!)
         for (Region region : exitedRegions) {
+            fr.skynex.worldx.event.RegionLeaveEvent leaveEvent = new fr.skynex.worldx.event.RegionLeaveEvent(region, player);
+            Bukkit.getPluginManager().callEvent(leaveEvent);
+
             String exitFlag = plugin.getRegionManager().getEffectiveFlagValue(region, "exit");
             if (exitFlag != null && exitFlag.equalsIgnoreCase("deny")) {
                 if (!player.hasPermission("worldx.bypass") && !player.isOp() && !region.isMember(playerUUID)) {
@@ -115,6 +119,12 @@ public class AdvancedFlagsListener implements Listener {
 
         // 1. Process entered regions (Check ENTRY protection first!)
         for (Region region : enteredRegions) {
+            fr.skynex.worldx.event.RegionEnterEvent enterEvent = new fr.skynex.worldx.event.RegionEnterEvent(region, player);
+            Bukkit.getPluginManager().callEvent(enterEvent);
+            if (enterEvent.isCancelled()) {
+                event.setTo(from);
+                return;
+            }
             String entryFlag = plugin.getRegionManager().getEffectiveFlagValue(region, "entry");
             if (entryFlag != null && entryFlag.equalsIgnoreCase("deny")) {
                 // If player is not owner/member and doesn't bypass, block them
