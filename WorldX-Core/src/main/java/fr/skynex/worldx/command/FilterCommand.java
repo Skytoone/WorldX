@@ -4,7 +4,6 @@ import fr.skynex.worldx.WorldX;
 import fr.skynex.worldx.edit.BlockEditQueue;
 import fr.skynex.worldx.region.Region;
 import fr.skynex.worldx.session.Session;
-import org.bukkit.Bukkit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;

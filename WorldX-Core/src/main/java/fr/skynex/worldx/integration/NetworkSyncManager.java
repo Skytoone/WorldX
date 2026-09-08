@@ -82,7 +82,7 @@ public class NetworkSyncManager implements PluginMessageListener {
             return;
         }
 
-        ByteArrayDataInput in = ByteStreams.newDataInput(Objects.requireNonNull(message));
+        ByteArrayDataInput in = ByteStreams.newDataInput(message);
         try {
             String action = in.readUTF();
 

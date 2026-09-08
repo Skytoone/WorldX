@@ -64,7 +64,9 @@ public class SelectionEvaluator {
 
                     if (inside) {
                         BlockData toSet = (palette != null) ? palette.sampleBlock() : blockData;
-                        changes.add(new BlockEditQueue.BlockChangeInfo(x, y, z, toSet));
+                        if (toSet != null) {
+                            changes.add(new BlockEditQueue.BlockChangeInfo(x, y, z, toSet));
+                        }
                     }
                 }
             }

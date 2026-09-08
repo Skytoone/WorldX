@@ -18,14 +18,16 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class EditCommand implements CommandExecutor {
+public class EditCommand implements CommandExecutor, TabCompleter {
 
     private final WorldX plugin;
 
@@ -1524,5 +1526,127 @@ public class EditCommand implements CommandExecutor {
         session.setPos2(new Location(w, maxX, maxY, maxZ));
         player.sendMessage(Component.text("Sélection " + (inset ? "réduite" : "agrandie") + " de " + amount + " bloc(s) sur tous les axes.", NamedTextColor.GREEN));
         return true;
+    }
+
+    private static final List<String> BLOCK_MATERIALS = new ArrayList<>();
+
+    static {
+        for (Material mat : Material.values()) {
+            if (mat.isBlock() && !mat.isLegacy()) {
+                BLOCK_MATERIALS.add(mat.getKey().getKey());
+            }
+        }
+        Collections.sort(BLOCK_MATERIALS);
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (args.length == 0) return Collections.emptyList();
+
+        String cmdName = command.getName().toLowerCase();
+        String currentArg = args[args.length - 1].toLowerCase();
+
+        switch (cmdName) {
+            case "/set":
+            case "set":
+            case "/walls":
+            case "walls":
+            case "/sphere":
+            case "sphere":
+            case "/hsphere":
+            case "hsphere":
+            case "/cyl":
+            case "cyl":
+            case "/hcyl":
+            case "hcyl":
+            case "/pyramid":
+            case "pyramid":
+            case "/hpyramid":
+            case "hpyramid":
+            case "/line":
+            case "line":
+            case "/center":
+            case "center":
+                if (args.length == 1) {
+                    return getBlockCompletions(currentArg);
+                }
+                break;
+
+            case "/replace":
+            case "replace":
+                if (args.length == 1 || args.length == 2) {
+                    return getBlockCompletions(currentArg);
+                }
+                break;
+
+            case "/fill":
+            case "fill":
+                if (args.length == 1) {
+                    return getBlockCompletions(currentArg);
+                }
+                break;
+
+            case "/count":
+            case "count":
+                if (args.length == 1) {
+                    return getBlockCompletions(currentArg);
+                }
+                break;
+
+            case "/gmask":
+            case "gmask":
+                if (args.length == 1) {
+                    return getBlockCompletions(currentArg);
+                }
+                break;
+
+            case "/expand":
+            case "expand":
+            case "/contract":
+            case "contract":
+            case "/stack":
+            case "stack":
+            case "/move":
+            case "move":
+                if (args.length == 2) {
+                    List<String> dirs = List.of("up", "down", "north", "south", "east", "west", "me");
+                    return filterCompletions(dirs, currentArg);
+                }
+                break;
+
+            case "/paste":
+            case "paste":
+                if (args.length == 1) {
+                    return filterCompletions(List.of("confirm", "cancel"), currentArg);
+                }
+                break;
+        }
+
+        return Collections.emptyList();
+    }
+
+    private List<String> getBlockCompletions(String currentArg) {
+        if (currentArg.startsWith("#")) {
+            try {
+                List<String> palNames = plugin.getDatabaseManager().getPaletteNames().get(100, java.util.concurrent.TimeUnit.MILLISECONDS);
+                List<String> palCompletions = new ArrayList<>();
+                for (String pName : palNames) {
+                    palCompletions.add("#" + pName);
+                }
+                return filterCompletions(palCompletions, currentArg);
+            } catch (Exception ignored) {}
+        }
+        return filterCompletions(BLOCK_MATERIALS, currentArg);
+    }
+
+    private static List<String> filterCompletions(List<String> source, String currentArg) {
+        List<String> result = new ArrayList<>();
+        for (String str : source) {
+            if (str.startsWith(currentArg) || str.contains(currentArg)) {
+                result.add(str);
+                if (result.size() >= 100) break;
+            }
+        }
+        return result;
     }
 }

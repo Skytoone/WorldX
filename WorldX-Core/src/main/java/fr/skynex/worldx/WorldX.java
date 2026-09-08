@@ -192,23 +192,19 @@ public class WorldX extends JavaPlugin {
 
             // Register Commands
             EditCommand editCmd = new EditCommand(this);
-            getCommand("/wand").setExecutor(editCmd);
-            getCommand("/set").setExecutor(editCmd);
-            getCommand("/replace").setExecutor(editCmd);
-            getCommand("/cut").setExecutor(editCmd);
-            getCommand("/copy").setExecutor(editCmd);
-            getCommand("/paste").setExecutor(editCmd);
-            getCommand("/undo").setExecutor(editCmd);
-            getCommand("/redo").setExecutor(editCmd);
-            getCommand("/expand").setExecutor(editCmd);
-            getCommand("/contract").setExecutor(editCmd);
-            getCommand("/size").setExecutor(editCmd);
-            getCommand("/rotate").setExecutor(editCmd);
-            getCommand("/flip").setExecutor(editCmd);
-            getCommand("/gmask").setExecutor(editCmd);
-            getCommand("/sphere").setExecutor(editCmd);
-            getCommand("/hsphere").setExecutor(editCmd);
-            getCommand("/line").setExecutor(editCmd);
+            String[] editCmdNames = {
+                    "/wand", "/pos1", "/pos2", "/hpos1", "/hpos2", "/set", "/replace", "/walls", "/cyl", "/hcyl",
+                    "/pyramid", "/hpyramid", "/center", "/count", "/distr", "/stack", "/move", "/fill", "/drain",
+                    "/inset", "/outset", "/cut", "/copy", "/paste", "/undo", "/redo", "/expand", "/contract",
+                    "/size", "/rotate", "/flip", "/gmask", "/sphere", "/hsphere", "/line"
+            };
+            for (String cmdName : editCmdNames) {
+                org.bukkit.command.PluginCommand cmd = getCommand(cmdName);
+                if (cmd != null) {
+                    cmd.setExecutor(editCmd);
+                    cmd.setTabCompleter(editCmd);
+                }
+            }
 
             RegionCommand regionCmd = new RegionCommand(this);
             getCommand("rg").setExecutor(regionCmd);

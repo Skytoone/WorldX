@@ -139,6 +139,11 @@ public class BlockEditQueue {
 
         for (int i = start; i < end; i++) {
             BlockChangeInfo change = changes.get(i);
+            if (change == null || change.newData == null) {
+                activeTask.currentIndex++;
+                continue;
+            }
+
             Block block = world.getBlockAt(change.x, change.y, change.z);
 
             Mask mask = activeTask.getParsedMask();
@@ -232,20 +237,22 @@ public class BlockEditQueue {
 
                     if (shouldModify) {
                         BlockData replacement = (activeTask.activePalette != null) ? activeTask.activePalette.sampleBlock() : activeTask.activeBlockData;
-                        BlockData originalData = block.getBlockData();
+                        if (replacement != null) {
+                            BlockData originalData = block.getBlockData();
 
-                        boolean success = NmsChunkWriter.setBlockDirectly(world, activeTask.currentX, activeTask.currentY, activeTask.currentZ, replacement);
-                        if (!success) {
-                            block.setBlockData(replacement, false);
-                        }
+                            boolean success = NmsChunkWriter.setBlockDirectly(world, activeTask.currentX, activeTask.currentY, activeTask.currentZ, replacement);
+                            if (!success) {
+                                block.setBlockData(replacement, false);
+                            }
 
-                        long chunkKey = (((long) (activeTask.currentX >> 4)) << 32) | ((activeTask.currentZ >> 4) & 0xFFFFFFFFL);
-                        activeTask.modifiedChunks.add(chunkKey);
+                            long chunkKey = (((long) (activeTask.currentX >> 4)) << 32) | ((activeTask.currentZ >> 4) & 0xFFFFFFFFL);
+                            activeTask.modifiedChunks.add(chunkKey);
 
-                        // Track history up to 20k to conserve RAM
-                        if (activeTask.historyChanges.size() < 20000) {
-                            activeTask.historyChanges.add(new EditOperation.BlockChange(
-                                    activeTask.currentX, activeTask.currentY, activeTask.currentZ, originalData, replacement));
+                            // Track history up to 20k to conserve RAM
+                            if (activeTask.historyChanges.size() < 20000) {
+                                activeTask.historyChanges.add(new EditOperation.BlockChange(
+                                        activeTask.currentX, activeTask.currentY, activeTask.currentZ, originalData, replacement));
+                            }
                         }
 
                         processed++;
